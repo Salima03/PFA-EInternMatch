@@ -1,0 +1,355 @@
+/*.offer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #e5e5e5;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .offer-image {
+    margin-right: 20px; 
+  }
+  .offer-image img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+  
+  .offer-info {
+    flex-grow: 1;
+  }
+  
+  .offer-details {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .see-more {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 12px;
+  }
+  
+  .see-more:hover {
+    color: #0056b3;
+  }.favorite-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.favorite-icon:hover {
+  transform: scale(1.1);
+}
+
+.favorite-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.favorite-icon.active svg {
+  fill: #000;
+  stroke: #000;
+}
+*/
+/*version 2*/
+/*
+.offer-card {
+  background-color: #e8e8e8;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  font-family: Arial, sans-serif;
+}
+
+.offer-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.company-logo-container img.company-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.offer-main-info {
+  flex: 1;
+  padding: 0 12px;
+}
+
+.offer-title {
+  font-weight: bold;
+  margin: 0;
+  font-size: 16px;
+}
+
+.offer-sector {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.favorite-icon {
+  cursor: pointer;
+  font-size: 20px;
+  user-select: none;
+}
+
+.offer-description {
+  margin: 12px 0;
+  color: #333;
+  font-size: 14px;
+}
+
+.offer-details-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.offer-detail-box {
+  background: white;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  flex: 1;
+  margin-right: 10px;
+  font-size: 13px;
+  color: #444;
+}
+
+.offer-detail-box:last-child {
+  margin-right: 0;
+}
+
+.offer-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.apply-button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+*/
+
+
+
+
+
+.offer-card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.offer-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+
+.company-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.header-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.offer-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.offer-sector {
+  margin: 0.3rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.offer-description {
+  margin: 0.5rem 0 0 0;
+  color: #444;
+  line-height: 1.4;
+}
+
+.truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.see-more-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.see-more-btn {
+  background: none;
+  border: none;
+  color: #2a7fba;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+
+.see-more-btn:hover {
+  color: #1a5f8b;
+}
+
+.card-details {
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eee;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-item {
+  background: #f8f9fa;
+  padding: 0.8rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: #333;
+}
+
+/*.apply-btn {
+  background-color: #2a7fba;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}*/
+
+.apply-btn:hover {
+  background-color: #1a5f8b;
+}
+/* Ajoutez ces règles à votre fichier CSS existant */
+
+.apply-btn {
+  background-color: #2a7fba;
+  /*background-color: #3fb7b7;*/
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.apply-icon {
+  font-size: 0.9rem;
+}
+
+.details-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.details-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.see-less-btn {
+  background: none;
+  border: none;
+  color: #2a7fba;
+  cursor: pointer;
+  padding: 0.3rem 0;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.see-less-btn:hover {
+  color: #1a5f8b;
+}
