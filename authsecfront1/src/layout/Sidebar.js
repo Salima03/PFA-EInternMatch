@@ -52,11 +52,13 @@ const Sidebar = () => {
       label: 'Home',
       icon: <FaHome />
     },
+    
     {
       path: role === 'MANAGER' ? '/company-profile' : '/profile/view',
       label: 'Profil',
       icon: <FaUser />
     },
+
     /*{ path: role === 'MANAGER' ? '/applications/:offerId' : '/my-applications',
       label: 'Candidature', icon: <FaFileAlt /> },*/
       /*{ path: '/my-applications',label: 'Candidature', icon: <FaFileAlt /> },*/

@@ -101,12 +101,14 @@ const Login = ({ setToken }) => {
        //une version avec emailet role stockes dans localstorage
     try {
   const response = await axios.post(`${API_BASE_URL}/auth/authenticate`, formData);
-  const { access_token, refresh_token } = response.data;
+  const { access_token, refresh_token,studentProfileId } = response.data;
 
   if (access_token && refresh_token) {
     storeTokens(access_token, refresh_token);
     const decoded = parseJwt(access_token);
     localStorage.setItem('userId', decoded?.userId);
+   
+
 
     // ✅ Stockage de l'email et du rôle
     if (decoded?.sub) {
@@ -115,8 +117,13 @@ const Login = ({ setToken }) => {
     if (decoded?.role) {
       localStorage.setItem('role', decoded.role);
     }
+    if (studentProfileId) {
+      localStorage.setItem("studentProfileId", studentProfileId);
+    }
 
     redirectUser(decoded, decoded?.name || decoded?.sub || '');
+
+
   } else {
     console.error("Tokens not found in Google login response", response.data);
     setMessage("Erreur: tokens manquants dans la réponse Google.");
@@ -185,11 +192,15 @@ const Login = ({ setToken }) => {
             try {
               const response = await axios.post(`${API_BASE_URL}/auth/google`, { idToken });
               console.log("Backend Response:", response.data);
-              const { access_token, refresh_token } = response.data;
+              const { access_token, refresh_token,studentProfileId } = response.data;
+              console.log("studentProfileId from backend:", studentProfileId);
 
               storeTokens(access_token, refresh_token);
               const decoded = parseJwt(access_token);
               localStorage.setItem('userId', decoded.userId);
+                if (studentProfileId) {
+                localStorage.setItem("studentProfileId", studentProfileId);
+                }
               redirectUser(decoded, decoded.name || decoded.sub || '');
             } catch (error) {
               setMessage('Erreur lors de la connexion Google');

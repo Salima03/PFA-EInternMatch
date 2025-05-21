@@ -53,6 +53,12 @@ const AdminOffre = ({ handleLogout }) => {
                                                         >
                                                             Candidature
                                                         </Nav.Link>
+                                                          <Nav.Link
+                                                                                        onClick={() => navigate('/admin/messages')}
+                                                                                        className={getLinkClass('/admin/messages')}
+                                                                                    >
+                                                                                        Messages
+                                                                                    </Nav.Link>
                         </Nav>
                         <Button
                             variant="light"

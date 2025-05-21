@@ -30,6 +30,9 @@ import AdminUser from './components/AdminUser';
 import AdminCompanies from './components/AdminCompanies'
 import AdminDashboard from './components/AdminDashboard';
 import AdminHome from './components/AdminHome';
+import About from './components/About';
+import LandingPage from './components/LandingPage';
+import AdminContact from './components/AdminContact';
 
 import SettingsPage from './components/SettingsPage';
 function App() {
@@ -110,6 +113,11 @@ function App() {
             <Route path="/admin/offers" element={<AdminOffre />} />
 
              <Route path="/settings" element={<SettingsPage />} />
+             <Route path="/about" element={<About />} />
+              <Route path="/admin/messages" element={<AdminContact />} />
+             <Route path="/" element={<LandingPage />} />
+               
+             
         </Routes>
       </BrowserRouter>
     </div>

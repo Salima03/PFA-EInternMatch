@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Companies from '../components/pagesADmin/Companies';
 
-const AdminHome = ({ handleLogout }) => {
+import ContactsManager from './ContactsManager';
+
+const AdminOffre = ({ handleLogout }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -47,17 +48,17 @@ const AdminHome = ({ handleLogout }) => {
                                 Offres
                             </Nav.Link>
                              <Nav.Link
-                                onClick={() => navigate('/admin/candidature')}
-                                className={getLinkClass('/admin/candidature')}
-                            >
-                                Candidature
-                            </Nav.Link>
-                             <Nav.Link
-                                onClick={() => navigate('/admin/messages')}
-                                className={getLinkClass('/admin/messages')}
-                            >
-                                Messages
-                            </Nav.Link>
+                                                            onClick={() => navigate('/admin/candidature')}
+                                                            className={getLinkClass('/admin/candidature')}
+                                                        >
+                                                            Candidature
+                                                        </Nav.Link>
+                                                          <Nav.Link
+                                                                                        onClick={() => navigate('/admin/messages')}
+                                                                                        className={getLinkClass('/admin/messages')}
+                                                                                    >
+                                                                                        Messages
+                                                                                    </Nav.Link>
                         </Nav>
                         <Button
                             variant="light"
@@ -74,7 +75,8 @@ const AdminHome = ({ handleLogout }) => {
             <main className="flex-grow-1 p-4">
                 <Container fluid>
                     <div className="bg-white rounded-4 shadow-sm p-4">
-                        <Companies />
+                        <ContactsManager />
+                        
                     </div>
                 </Container>
             </main>
@@ -82,4 +84,4 @@ const AdminHome = ({ handleLogout }) => {
     );
 };
 
-export default AdminHome;
+export default AdminOffre;

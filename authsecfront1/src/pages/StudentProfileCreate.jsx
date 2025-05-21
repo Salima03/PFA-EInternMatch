@@ -68,7 +68,7 @@ const StudentProfileCreate = () => {
 
       const createdProfile=response.data;
       const studentProfileId=createdProfile.id;
-      localStorage.setItem("studentProfileId",studentProfileId);
+      //localStorage.setItem("studentProfileId",studentProfileId);
 
 
       alert("Profil créé avec succès !");
