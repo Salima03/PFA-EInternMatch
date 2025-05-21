@@ -1,6 +1,7 @@
 package com.example.einternmatchback.stagiaire;
 
 import com.example.einternmatchback.Authentification.user.User;
+import com.example.einternmatchback.Postulation.Entity.Application;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -25,7 +26,11 @@ public class StudentProfile {
     @GeneratedValue
     private Integer id;
 
-
+    @OneToMany(mappedBy = "student",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Application> applications = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

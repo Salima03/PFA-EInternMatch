@@ -58,6 +58,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/v2/api-docs",
+                                "/api/contact",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/images/**",
@@ -86,6 +87,9 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/v1/profiles").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/profiles/").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/profiles/").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/contact").permitAll() // Seul POST est public
+                        .requestMatchers(HttpMethod.GET, "/api/contact/**").hasRole("ADMIN") // Lecture réservée à l'admin
+                        .requestMatchers(HttpMethod.DELETE, "/api/contact/**").hasRole("ADMIN") // Suppression réservée à l'admin
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

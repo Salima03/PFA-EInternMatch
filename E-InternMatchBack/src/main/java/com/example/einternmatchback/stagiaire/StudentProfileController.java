@@ -213,5 +213,11 @@ public class StudentProfileController {
         }
     }
 
-
+    //zyada salma
+    @PutMapping("/deactivate")
+    public ResponseEntity<String> deactivateMyAccount(Principal principal) {
+        String email = principal.getName(); // récupère l'email JWT
+        profileService.deactivateAccountByUser(email);
+        return ResponseEntity.ok("Compte désactivé avec succès.");
+    }
 }

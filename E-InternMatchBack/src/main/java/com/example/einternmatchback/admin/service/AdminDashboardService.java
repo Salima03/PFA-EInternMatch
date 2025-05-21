@@ -307,7 +307,9 @@ public class AdminDashboardService {
                                         user.getEmail(),
                                         profile.getCreatedAt(),
                                         user.getRole().name(),
-                                        profile.getId()
+                                        profile.getId(),
+                                        user.isLockedByAdmin(),
+                                        user.getDeactivatedByUser()
                                 ))
                                 .orElse(null);
                     } else if (user.getRole().equals(Role.MANAGER)) {
@@ -318,7 +320,9 @@ public class AdminDashboardService {
                                         user.getEmail(),
                                         company.getCreatedAt(),
                                         user.getRole().name(),
-                                        company.getId()
+                                        company.getId(),
+                                        user.isLockedByAdmin(),
+                                        user.getDeactivatedByUser()
                                 ))
                                 .orElse(null);
                     } else if (user.getRole().equals(Role.ADMIN)) {
@@ -329,7 +333,9 @@ public class AdminDashboardService {
                                         user.getEmail(),
                                         admin.getCreatedAt(),
                                         user.getRole().name(),
-                                        user.getId()
+                                        user.getId(),
+                                        user.isLockedByAdmin(),
+                                        user.getDeactivatedByUser()
                                 ))
                                 .orElse(null);
                     } else {

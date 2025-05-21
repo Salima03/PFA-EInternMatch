@@ -4,6 +4,11 @@ package com.example.einternmatchback.stagiaire;
 import com.example.einternmatchback.Authentification.user.Role;
 import com.example.einternmatchback.Authentification.user.User;
 import com.example.einternmatchback.Authentification.user.UserRepository;
+import com.example.einternmatchback.ClientOffre.entity.Favoris;
+import com.example.einternmatchback.ClientOffre.repository.FavorisRepository;
+import com.example.einternmatchback.Postulation.repository.ApplicationRepository;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +28,12 @@ public class StudentProfileService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+
+    @Autowired
+    private FavorisRepository favorisRepository;
 
     public StudentProfile createProfile(StudentProfile profile, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
@@ -297,6 +305,11 @@ public class StudentProfileService {
             throw new RuntimeException("Action non autorisée");
         }
 
+        User user = profile.getUser();
+        // 🔥 Supprimer les favoris liés à l'utilisateur
+        favorisRepository.deleteByUserId(user.getId());
+        applicationRepository.deleteByStudent(profile);
+
         // Supprimer aussi les fichiers liés
         deleteFile(profile.getCvPath());
         deleteFile(profile.getMotivationLetterPath());
@@ -406,6 +419,15 @@ public class StudentProfileService {
         return profile.getSkills().stream()
                 .map(skill -> skill.getName().trim().toLowerCase())
                 .collect(Collectors.toSet());
+    }
+
+    //zyada salma
+    public void deactivateAccountByUser(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        user.setDeactivatedByUser(true);
+        userRepository.save(user);
     }
 
 }

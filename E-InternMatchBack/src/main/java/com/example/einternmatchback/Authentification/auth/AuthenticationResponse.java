@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
-
+    private Integer studentProfileId;
     private String message;
     //nom de propriété est access_token
     @JsonProperty("access_token")

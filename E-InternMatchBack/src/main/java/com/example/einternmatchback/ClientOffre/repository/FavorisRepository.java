@@ -4,6 +4,7 @@ import com.example.einternmatchback.AjoutOffers.model.Offer;
 import com.example.einternmatchback.ClientOffre.entity.Favoris;
 import com.example.einternmatchback.Authentification.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,14 @@ public interface FavorisRepository extends JpaRepository<Favoris, Integer> {
     // Optionnel - si vous en avez besoin ailleurs
     @Query("SELECT f FROM Favoris f WHERE f.user.id = :userId")
     List<Favoris> findByUserId(@Param("userId") Integer userId);
+
+    @Modifying
+    @Query("DELETE FROM Favoris f WHERE f.offer = :offer")
+    void deleteByOffer(@Param("offer") Offer offer);
+
+    @Modifying
+    @Query("DELETE FROM Favoris f WHERE f.offer IN (SELECT o FROM Offer o WHERE o.company.id = :companyId)")
+    void deleteAllByCompanyId(@Param("companyId") Integer companyId);
+    //
+    void deleteByUserId(Integer student);
 }

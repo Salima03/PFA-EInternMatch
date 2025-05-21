@@ -8,6 +8,7 @@ import com.example.einternmatchback.Authentification.token.TokenRepository;
 import com.example.einternmatchback.Authentification.token.TokenType;
 import com.example.einternmatchback.Authentification.user.*;
 import com.example.einternmatchback.stagiaire.StudentProfile;
+import com.example.einternmatchback.stagiaire.StudentProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -42,6 +43,8 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final CompanyRepository companyRepository;
+    private final StudentProfileRepository studentProfileRepository;
+
 
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -90,7 +93,7 @@ public class AuthenticationService {
         }
     }
 
-
+/*
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
             authenticationManager.authenticate(
@@ -117,6 +120,18 @@ public class AuthenticationService {
         extraClaims.put("firstname", user.getFirstname());
         extraClaims.put("lastname", user.getLastname());
         extraClaims.put("userId", user.getId());
+
+
+
+        //pour partie studentporfileid
+        Integer studentProfileId = null;
+        if (user.getStudentProfile() != null) {
+            studentProfileId = user.getStudentProfile().getId();
+            extraClaims.put("studentProfileId", studentProfileId); // optionnel pour le token
+        }
+
+
+
         var jwtToken = jwtService.generateToken(extraClaims, user);
 
 
@@ -129,7 +144,53 @@ public class AuthenticationService {
                 .build();
     }
 
+*/
+public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    try {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+    } catch (BadCredentialsException e) {
+        System.out.println("Échec de l'authentification: Mauvais identifiants.");
+        return null;
+    } catch (Exception e) {
+        System.out.println("Échec de l'authentification: " + e.getMessage());
+        return null;
+    }
 
+    var user = repository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    System.out.println("Utilisateur trouvé: " + user.getEmail());
+    System.out.println("Mot de passe en base : " + user.getPassword());
+
+        /*if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return null;
+        }*/
+    Map<String, Object> extraClaims = new HashMap<>();
+    extraClaims.put("role", user.getRole().name());
+    extraClaims.put("firstname", user.getFirstname());
+    extraClaims.put("lastname", user.getLastname());
+    extraClaims.put("userId", user.getId());
+
+    Integer studentProfileId = null;
+    if (user.getStudentProfile() != null) {
+        studentProfileId = user.getStudentProfile().getId();
+        extraClaims.put("studentProfileId", studentProfileId); // optionnel pour le token
+    }
+
+    var jwtToken = jwtService.generateToken(extraClaims, user);
+    var refreshToken = jwtService.generateRefreshToken(user);
+    revokeAllUserTokens(user);
+    saveUserToken(user, jwtToken);
+    return AuthenticationResponse.builder()
+            .accessToken(jwtToken)
+            .refreshToken(refreshToken)
+            .studentProfileId(studentProfileId)
+            .build();
+}
 
     private void saveUserToken(User user, String jwtToken) {
         // Vérifie si le token existe déjà
@@ -197,7 +258,7 @@ public class AuthenticationService {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-
+/*
     public AuthenticationResponse authenticateWithGoogle(String idToken) {
         String email = getEmailFromGoogleToken(idToken);
 
@@ -207,6 +268,9 @@ public class AuthenticationService {
 
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+
+        StudentProfile studentProfile = studentProfileRepository.findByUser(user).orElse(null);
 
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole().name());
@@ -222,9 +286,39 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .studentProfileId(studentProfile != null ? studentProfile.getId() : null)
+
                 .build();
     }
+*/
+public AuthenticationResponse authenticateWithGoogle(String idToken) {
+    String email = getEmailFromGoogleToken(idToken);
 
+    if (email == null) {
+        throw new UsernameNotFoundException("Failed to extract email from Google token.");
+    }
+
+    User user = repository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+    StudentProfile studentProfile = studentProfileRepository.findByUser(user).orElse(null);
+    Map<String, Object> extraClaims = new HashMap<>();
+    extraClaims.put("role", user.getRole().name());
+    extraClaims.put("firstname", user.getFirstname());
+    extraClaims.put("lastname", user.getLastname());
+    extraClaims.put("userId", user.getId());
+
+    var jwtToken = jwtService.generateToken(extraClaims, user);
+    var refreshToken = jwtService.generateRefreshToken(user);
+    revokeAllUserTokens(user);
+    saveUserToken(user, jwtToken);
+
+    return AuthenticationResponse.builder()
+            .accessToken(jwtToken)
+            .refreshToken(refreshToken)
+            .studentProfileId(studentProfile != null ? studentProfile.getId() : null)
+            .build();
+}
 
 
     public String getEmailFromGoogleToken(String idTokenString) {

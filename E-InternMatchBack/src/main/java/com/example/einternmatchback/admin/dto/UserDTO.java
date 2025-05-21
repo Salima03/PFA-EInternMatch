@@ -2,6 +2,9 @@ package com.example.einternmatchback.admin.dto;
 
 
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 public class UserDTO {
@@ -14,13 +17,18 @@ public class UserDTO {
     private Integer userId;
 
     // Constructeurs
-    public UserDTO(String firstname, String lastname, String email, LocalDateTime profileCreatedAt, String role, Integer userId ) {
+    @Getter
+    @Setter
+    private boolean lockedByAdmin;
+    public UserDTO(String firstname, String lastname, String email, LocalDateTime profileCreatedAt, String role, Integer userId ,boolean lockedByAdmin,Boolean deactivatedByUser) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.profileCreatedAt = profileCreatedAt;
         this.role = role;
         this.userId= userId;
+        this.lockedByAdmin= lockedByAdmin;
+        this.deactivatedByUser = deactivatedByUser;
 
     }
 
@@ -70,6 +78,20 @@ public class UserDTO {
 
     public void setId(Integer userId) {
         this.userId = userId;
+    }
+
+    public void setLocked(boolean lockedByAdmin) {
+        this.lockedByAdmin = lockedByAdmin;
+    }
+    //zyada
+    private Boolean deactivatedByUser;
+
+    public Boolean getDeactivatedByUser() {
+        return deactivatedByUser;
+    }
+
+    public void setDeactivatedByUser(Boolean deactivatedByUser) {
+        this.deactivatedByUser = deactivatedByUser;
     }
 
 }

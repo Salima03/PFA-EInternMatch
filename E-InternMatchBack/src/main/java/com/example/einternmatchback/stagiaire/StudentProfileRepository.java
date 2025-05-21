@@ -23,5 +23,6 @@ public interface StudentProfileRepository extends JpaRepository<StudentProfile, 
     Optional<StudentProfile> findByUser(User user);
 
 
+
 }
 
