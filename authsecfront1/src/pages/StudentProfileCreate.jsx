@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../components/api1";
 import './StudentProfileForm.css'; // <-- Ton CSS importé ici
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:1217/api/v1/profiles';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:1217/api/v1/profiles';
 
 const StudentProfileCreate = () => {
   const [profile, setProfile] = useState({
@@ -59,7 +60,7 @@ const StudentProfileCreate = () => {
     if (coverPhoto) formData.append("coverPhoto", coverPhoto);
 
     try {
-      const response=await axios.post(`${API_BASE_URL}`, formData, {
+      const response=await api.post(`/profiles`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

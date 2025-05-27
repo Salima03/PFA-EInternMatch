@@ -193,7 +193,7 @@ const CompanyProfile = () => {
       <Sidebar />
       <main className="page-content">
         <div style={styles.container}>
-          <h1 style={styles.title}>Profil Entreprise</h1>
+          
 
           {!company && !isEditing ? (
             <div style={styles.emptyProfile}>
@@ -349,20 +349,13 @@ const CompanyProfile = () => {
                 >
                   Modifier
                 </button>
-                {/* Bouton de suppression commenté
-                <button
-                  onClick={handleDelete}
-                  style={styles.dangerButton}
-                >
-                  Supprimer
-                </button>
-                */}
-                <button
+               
+                {/*<button
                   onClick={handleDeactivate}
                   style={styles.warningButton}
                 >
                   Désactiver le compte
-                </button>
+                </button>*/}
               </div>
             </div>
           )}

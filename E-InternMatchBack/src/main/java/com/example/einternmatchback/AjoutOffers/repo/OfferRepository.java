@@ -4,6 +4,7 @@ import com.example.einternmatchback.AjoutOffers.model.Offer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +19,7 @@ public interface OfferRepository extends JpaRepository<Offer, Integer> {
     @Modifying
     @Query("DELETE FROM Offer o WHERE o.company.id = :companyId")
     void deleteByCompanyId(Integer companyId);
+
+    @Query("SELECT o FROM Offer o WHERE o.company.id = :companyId AND o.isActive = true")
+    List<Offer> findActiveOffersByCompanyId(@Param("companyId") Integer companyId);
 }

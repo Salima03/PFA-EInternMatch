@@ -52,6 +52,12 @@ public class CompanyController {
         companyService.deleteCompanyByCompanyId(userId);
         return ResponseEntity.noContent().build();
     }
-
+// hamouda
+@PutMapping("/deactivate")
+public ResponseEntity<String> deactivateMyAccount(Principal principal) {
+    String email = principal.getName(); // récupère l'email JWT
+    companyService.deactivateAccountByUserCompany(email);
+    return ResponseEntity.ok("Compte désactivé avec succès.");
+}
 
 }

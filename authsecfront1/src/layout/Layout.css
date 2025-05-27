@@ -88,6 +88,7 @@
 
 .sidebar {
   display: flex;
+  position: fixed;
   flex-shrink: 0;/*pour qu'elle ne soit pas ecraser*/
   flex-direction: column;
   justify-content: space-between;
@@ -292,6 +293,7 @@
   
   .page-content {
     flex-grow: 1;
+    margin-left: 250px;
     padding: 20px;
     background-color: transparent;/*pour que la degradation de layout(parent) ca marche */
     overflow-y: auto;

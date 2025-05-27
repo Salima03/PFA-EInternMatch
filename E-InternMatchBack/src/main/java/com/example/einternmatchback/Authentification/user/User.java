@@ -26,6 +26,7 @@ import static java.util.concurrent.TimeUnit.*;
 @DiscriminatorColumn(name = "user_type")
 @Table(name = "_user")
 @Data
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,9 +52,12 @@ public class User implements UserDetails {
     private List<Token> tokens;
 
     //pour partie studentprofileid
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    //@OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
     private StudentProfile studentProfile;
+
+
 /*
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favoris> favoris;

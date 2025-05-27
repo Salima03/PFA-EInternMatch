@@ -5,10 +5,7 @@ import com.example.einternmatchback.Postulation.Entity.Application;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,12 +22,12 @@ public class StudentProfile {
     @Id
     @GeneratedValue
     private Integer id;
-
+/*
     @OneToMany(mappedBy = "student",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY)
-    private List<Application> applications = new ArrayList<>();
+    private List<Application> applications = new ArrayList<>();*/
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

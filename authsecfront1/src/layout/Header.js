@@ -23,7 +23,7 @@ const Header = ({ onSearchChange, favoritesCount }) => {
     const [loadingProfile, setLoadingProfile] = useState(true);
      
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -33,7 +33,7 @@ const Header = ({ onSearchChange, favoritesCount }) => {
       }
     }
   }, [token]);
-
+*/
   const handleInputChange = (e) => {
     onSearchChange(e.target.value);
   };
@@ -49,6 +49,10 @@ const Header = ({ onSearchChange, favoritesCount }) => {
     const profileResponse = await api.get("/profiles/my-profile");
     const userProfile = profileResponse.data;
     setProfile(userProfile);
+
+    if (userProfile.user) {
+        setFullName(`${userProfile.user.firstname} ${userProfile.user.lastname}`);
+      }
 
     try {
       const pictureResponse = await api.get("/profiles/profile-picture", {

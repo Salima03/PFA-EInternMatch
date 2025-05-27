@@ -4,6 +4,7 @@ import NotificationDropdown from '../components/NotificationDropdown';
 import CompanyDashboard from './CompanyDashboard';
 import Sidebar from '../layout/Sidebar';
 import axios from 'axios';
+import api from './api1';
 import CompanyHeader from '../components/CompanyHeader';
 import CompanyProfile from './CompanyProfile';
 const HomeCompany = () => {
@@ -16,8 +17,8 @@ const HomeCompany = () => {
 
     const fetchCompanyProfile = async () => {
         try {
-            const response = await axios.get(
-                `http://localhost:1217/api/v1/companies/profile/details`,
+            const response = await api.get(
+                `/companies/profile/details`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -96,7 +97,7 @@ const HomeCompany = () => {
     }
           
     return (
-<div className="dashboard-layout" style={{ display: 'flex', minHeight: '100vh' }}>
+<div className="dashboard-layout" style={{ display: 'flex', minHeight: '100vh',position: 'relative' }}>
   <Sidebar />
 
   {/* Contenu principal à droite de la sidebar */}

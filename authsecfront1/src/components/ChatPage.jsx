@@ -661,7 +661,7 @@ const ChatPage = () => {
                                 </div>
 
                                 {msg.senderId === userId && msg.id && selectedMessageId === msg.id && (
-                                    <div ref={menuRef} style={styles.messageMenu}>
+                                   <div ref={menuRef} style={styles.messageMenu}>
                                       <button
                                           onClick={(e) => {
                                             e.stopPropagation();

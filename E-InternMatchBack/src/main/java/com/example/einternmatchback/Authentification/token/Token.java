@@ -10,10 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
@@ -40,7 +37,9 @@ public class Token {
 
     //pls tokens pour un user
     //LAZY => user n'est recuperer que si necessaire, on terme d'optimisation
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+
     //clé etrangé dans table Token sera user_id
     @JoinColumn(name = "user_id")
 

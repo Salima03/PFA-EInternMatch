@@ -3,6 +3,8 @@ package com.example.einternmatchback.AjoutOffers.service;
 import com.example.einternmatchback.AjoutOffers.dto.OfferRequest;
 import com.example.einternmatchback.AjoutOffers.model.*;
 import com.example.einternmatchback.AjoutOffers.repo.OfferRepository;
+import com.example.einternmatchback.ClientOffre.repository.FavorisRepository;
+import com.example.einternmatchback.Postulation.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,6 +21,8 @@ public class OfferService {
 
     private final OfferRepository offerRepository;
     private final CompanyService companyService;
+    private final FavorisRepository favorisRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Transactional
     public Offer createOffer(OfferRequest request, Principal principal) {
@@ -75,6 +79,14 @@ public class OfferService {
     @Transactional
     public void deleteOffer(Integer id, Principal principal) {
         Offer offer = getOwnedOffer(id, principal);
+
+        // Supprimer d'abord les favoris associés
+        favorisRepository.deleteByOffer(offer);
+
+        // Supprimer ensuite les applications associées
+        applicationRepository.deleteByOffer(offer);
+
+        // Enfin supprimer l'offre
         offerRepository.delete(offer);
     }
 

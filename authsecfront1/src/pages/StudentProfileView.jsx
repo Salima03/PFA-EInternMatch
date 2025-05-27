@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../components/api1";
 import Sidebar from '../layout/Sidebar';
 //pour les icones de poubelles pour supprimer
 import { Trash2 } from "lucide-react";
@@ -37,33 +38,33 @@ if (accessToken) {
 
 
     try {
-      const profileResponse = await axios.get(`${API_BASE_URL}/my-profile`, { headers });
+      const profileResponse = await api.get(`/profiles/my-profile`, { headers });
       const userProfile = profileResponse.data;
       setProfile(userProfile);
 
       try {
-        const pictureResponse = await axios.get(`${API_BASE_URL}/profile-picture`, { headers, responseType: 'blob' });
+        const pictureResponse = await api.get(`/profiles/profile-picture`, { headers, responseType: 'blob' });
         setProfilePictureUrl(URL.createObjectURL(pictureResponse.data));
       } catch {
         setProfilePictureUrl(DEFAULT_PROFILE_PICTURE);
       }
 
       try {
-        const coverResponse = await axios.get(`${API_BASE_URL}/cover-photo`, { headers, responseType: 'blob' });
+        const coverResponse = await api.get(`/profiles/cover-photo`, { headers, responseType: 'blob' });
         setCoverPhotoUrl(URL.createObjectURL(coverResponse.data));
       } catch {
         setCoverPhotoUrl(DEFAULT_COVER_PHOTO);
       }
 
       try {
-        const cvResponse = await axios.get(`${API_BASE_URL}/cv`, { headers, responseType: 'blob' });
+        const cvResponse = await api.get(`/profiles/cv`, { headers, responseType: 'blob' });
         setCvUrl(URL.createObjectURL(cvResponse.data));
       } catch {
         setCvUrl(null);
       }
 
       try {
-        const motivationResponse = await axios.get(`${API_BASE_URL}/letter`, { headers, responseType: 'blob' });
+        const motivationResponse = await api.get(`/profiles/letter`, { headers, responseType: 'blob' });
         setMotivationLetterUrl(URL.createObjectURL(motivationResponse.data));
       } catch {
         setMotivationLetterUrl(null);
@@ -94,7 +95,7 @@ if (storedEmail) {
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/file/${fileType}`, {
+      await api.delete(`/profiles/file/${fileType}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

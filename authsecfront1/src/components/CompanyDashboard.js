@@ -357,7 +357,7 @@ const CompanyDashboard = () => {
 
     return (
         <div className="container-fluid p-2 p-md-4 bg-light"
-        style={{ width: '100%', flex: 1 }}>
+        style={{ width: 'calc(100% - 250px)', flex: 1 ,backgroundColor:'transparent',marginLeft: '250px'}}>
             {/* Header */}
             <div className="card border-0 mb-4" style={{
                 background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%)',

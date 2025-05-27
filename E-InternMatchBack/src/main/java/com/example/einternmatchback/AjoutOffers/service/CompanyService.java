@@ -1,11 +1,14 @@
 package com.example.einternmatchback.AjoutOffers.service;
 
+import com.example.einternmatchback.Authentification.user.User;
 import com.example.einternmatchback.AjoutOffers.dto.CompanyRequest;
 import com.example.einternmatchback.AjoutOffers.model.Company;
 import com.example.einternmatchback.AjoutOffers.repo.CompanyRepository;
 import com.example.einternmatchback.AjoutOffers.repo.OfferRepository;
 import com.example.einternmatchback.Authentification.token.TokenRepository;
 import com.example.einternmatchback.Authentification.user.UserRepository;
+import com.example.einternmatchback.ClientOffre.repository.FavorisRepository;
+import com.example.einternmatchback.Postulation.repository.ApplicationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +42,8 @@ public class CompanyService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final OfferRepository offerRepository;
+    private final FavorisRepository favorisRepository;
+    private final ApplicationRepository applicationRepository;
     private static final Logger logger = LoggerFactory.getLogger(CompanyService.class);
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -181,7 +186,7 @@ public class CompanyService {
         }
         throw new RuntimeException("Company profile picture not found");
     }
-    //salma
+   /* //salma
     @Transactional
     public void deleteCompanyByCompanyId(Integer companyId) {
         companyRepository.findById(companyId).ifPresentOrElse(company -> {
@@ -214,5 +219,60 @@ public class CompanyService {
         }, () -> {
             throw new EntityNotFoundException("Entreprise non trouvée avec l'ID: " + companyId);
         });
+    }*/
+
+    @Transactional
+    public void deleteCompanyByCompanyId(Integer companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new EntityNotFoundException("Entreprise non trouvée avec l'ID: " + companyId));
+
+        Integer userId = company.getUserId();
+
+        try {
+            // 1. Supprimer toutes les dépendances en une seule requête pour chaque table
+            deleteAllCompanyDependencies(companyId);
+
+            // 2. Supprimer l'image de l'entreprise
+            deleteCompanyPictureIfExists(company);
+
+            // 3. Supprimer l'entreprise
+            companyRepository.delete(company);
+
+            // 4. Supprimer l'utilisateur et ses tokens
+            deleteUserAndTokens(userId);
+
+            logger.info("Suppression réussie de l'entreprise ID {} et utilisateur ID {}", companyId, userId);
+        } catch (Exception e) {
+            logger.error("Échec de la suppression de l'entreprise ID {}", companyId, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Échec de la suppression de l'entreprise: " + e.getMessage());
+        }
+    }
+
+    private void deleteAllCompanyDependencies(Integer companyId) {
+        // Suppression en batch plus efficace
+        applicationRepository.deleteAllByCompanyId(companyId);
+        favorisRepository.deleteAllByCompanyId(companyId);
+        offerRepository.deleteByCompanyId(companyId);
+    }
+
+    private void deleteCompanyPictureIfExists(Company company) throws IOException {
+        if (company.getPicture() != null && !company.getPicture().isEmpty()) {
+            Path path = Paths.get(uploadDir).resolve(company.getPicture()).normalize();
+            Files.deleteIfExists(path);
+        }
+    }
+
+    private void deleteUserAndTokens(Integer userId) {
+        tokenRepository.deleteAllByUserId(userId);
+        userRepository.deleteById(userId);
+    }
+    //zyada
+    public void deactivateAccountByUserCompany(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        user.setDeactivatedByUser(true);
+        userRepository.save(user);
     }
 }

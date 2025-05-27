@@ -82,6 +82,7 @@ function App() {
           <Route path="/logout" element={<Logout setToken={setToken} />} />
           <Route path="/homecompany" element={<HomeCompany />} />
           <Route path="/company-profile" element={<CompanyProfile />} />
+          <Route path="/companies/profile/update" element={<CompanyProfile />} />
           <Route path="/offers" element={<OffersManagement />} />
           <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
           <Route path="/favorites" element={<MainLayout><Favorites /></MainLayout>} /> {/* Ajouter la route pour les favoris */}

@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
 
 public class AdminDashboardService {
     @Autowired
-    private CompanyRepository companyRepository;
+    private final CompanyRepository companyRepository;
 
-    private  final AdminRepository adminRepository;
+    private  final AdminnRepository adminRepository;
 
     private final AdminStatsRepository adminStatsRepository;
     private final UserRepository userRepository;
