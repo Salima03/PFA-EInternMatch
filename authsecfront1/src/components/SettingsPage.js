@@ -462,17 +462,17 @@ const SettingsPage = () => {
     </div>
   </div>
 ) : (
-  <div style={styles.infoItem}>
-    <FiUser style={styles.infoIcon} />
-    <div>
-      <p style={styles.infoLabel}>Site web</p>
-      <p style={styles.infoValue}>
-        <a href={profile.website} target="_blank" rel="noopener noreferrer">
-          {profile.website}
-        </a>
-      </p>
-    </div>
-  </div>
+                    <div style={styles.infoItem}>
+                      <FiUser style={styles.infoIcon} />
+                      <div>
+                        <p style={styles.infoLabel}>Site web</p>
+                        <p style={styles.infoValue}>
+                          <a href={profile.website} target="_blank" rel="noopener noreferrer" style={styles.websiteLink}>
+                            {profile.website}
+                          </a>
+                        </p>
+                      </div>
+                    </div>
 )}
 
 
@@ -564,7 +564,7 @@ const styles = {
     position: 'absolute',
     bottom: '0',
     right: '0',
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#00838f',
     color: 'white',
     width: '36px',
     height: '36px',
@@ -575,7 +575,7 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#2563eb',
+      backgroundColor: '#00838f',
       transform: 'scale(1.1)'
     }
   },
@@ -670,10 +670,10 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#00838f',
     color: 'white',
     ':hover': {
-      backgroundColor: '#2563eb',
+      backgroundColor: '#00838f',
       transform: 'translateY(-1px)'
     }
   },
@@ -690,10 +690,10 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    backgroundColor: '#fef3c7',
-    color: '#b45309',
+    backgroundColor: '#00acc1',
+    color: '#ffffff',
     ':hover': {
-      backgroundColor: '#fde68a',
+      backgroundColor: '#00acc1',
       transform: 'translateY(-1px)'
     },
     ':disabled': {
@@ -715,8 +715,8 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    backgroundColor: 'white',
-    color: '#3b82f6',
+    backgroundColor: '#f9f9f9',
+    color: '#00acc1',
     ':hover': {
       backgroundColor: '#f8fafc',
       transform: 'translateY(-1px)'
@@ -736,6 +736,21 @@ const styles = {
     color: '#94a3b8',
     fontSize: '0.875rem',
     margin: 0
+  },
+  infoValue: {
+    color: '#00838f',  // Changé de #1e293b à #00838f (bleu-vert)
+    fontSize: '1rem',
+    fontWeight: '500',
+    margin: 0
+  },
+
+  // Pour le lien du site web spécifiquement
+  websiteLink: {
+    color: '#00838f',
+    textDecoration: 'none',
+    ':hover': {
+      textDecoration: 'underline'
+    }
   }
 };
 

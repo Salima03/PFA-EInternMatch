@@ -2,6 +2,8 @@ import React from 'react';
 import { Card, Button, Container, Row, Col } from 'react-bootstrap';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { motion } from 'framer-motion';
+import { FiExternalLink } from 'react-icons/fi';
 
 const ArticlesList = () => {
     // Les 3 meilleurs articles sélectionnés pour E-InternMatch
@@ -49,41 +51,150 @@ const ArticlesList = () => {
     };
 
     return (
-        <Container className="my-5">
-            <h2 className="text-center mb-4">Ressources stratégiques pour E-InternMatch</h2>
-            <Row xs={1} md={2} lg={3} className="g-4 justify-content-center">
+        <section className="articles-section">
+            <div className="section-header">
+                <h2>Ressources utiles</h2>
+                <p className="section-subtitle">Découvrez nos articles sélectionnés pour vous</p>
+            </div>
+
+            <div className="articles-grid">
                 {articles.map((article, index) => (
-                    <Col key={index} className="d-flex">
-                        <Card className="h-100 shadow-sm border-0">
-                            <Card.Img
-                                variant="top"
+                    <motion.div
+                        key={index}
+                        className="article-card"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        whileHover={{ y: -5 }}
+                    >
+                        <div className="article-image-container">
+                            <img
                                 src={article.image}
                                 alt={article.title}
-                                style={{
-                                    height: '200px',
-                                    objectFit: 'cover',
-                                    borderTopLeftRadius: '0.375rem',
-                                    borderTopRightRadius: '0.375rem'
-                                }}
+                                className="article-image"
                             />
-                            <Card.Body className="d-flex flex-column p-4">
-                                <Card.Title className="fs-5 mb-3">{article.title}</Card.Title>
-                                <Card.Text className="text-muted mb-4">{article.description}</Card.Text>
-                                <Button
-                                    variant="primary"
-                                    onClick={() => handleReadArticle(article.url)}
-                                    className="mt-auto align-self-start px-4 py-2"
-                                    style={{ borderRadius: '20px' }}
-                                >
-                                    <FaExternalLinkAlt className="me-2" />
-                                    Consulter
-                                </Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
+                        </div>
+                        <div className="article-content">
+                            <h3>{article.title}</h3>
+                            <p className="article-description">{article.description}</p>
+                            <a
+                                href={article.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="article-link"
+                            >
+                                <FiExternalLink className="link-icon" />
+                                Lire l'article
+                            </a>
+                        </div>
+                    </motion.div>
                 ))}
-            </Row>
-        </Container>
+            </div>
+
+            <style jsx>{`
+                .articles-section {
+                    padding: 5rem 2rem;
+                    background: #ffffff;
+                }
+                
+                .section-header {
+                    text-align: center;
+                    margin-bottom: 3rem;
+                    max-width: 800px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                
+                .section-header h2 {
+                    font-size: 2.2rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                }
+                
+                .section-subtitle {
+                    color: #666;
+                    font-size: 1.1rem;
+                }
+                
+                .articles-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 2rem;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                
+                .article-card {
+                    background: white;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                    transition: all 0.3s ease;
+                }
+                
+                .article-image-container {
+                    height: 200px;
+                    overflow: hidden;
+                }
+                
+                .article-image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.5s ease;
+                }
+                
+                .article-card:hover .article-image {
+                    transform: scale(1.05);
+                }
+                
+                .article-content {
+                    padding: 1.5rem;
+                }
+                
+                .article-content h3 {
+                    font-size: 1.2rem;
+                    margin-bottom: 0.75rem;
+                    color: var(--text-color);
+                }
+                
+                .article-description {
+                    color: #666;
+                    margin-bottom: 1.5rem;
+                    font-size: 0.95rem;
+                    line-height: 1.5;
+                }
+                
+                .article-link {
+                    display: inline-flex;
+                    align-items: center;
+                    color: var(--primary-color);
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                
+                .article-link:hover {
+                    color: var(--secondary-color);
+                    text-decoration: underline;
+                }
+                
+                .link-icon {
+                    margin-right: 0.5rem;
+                }
+                
+                @media (max-width: 768px) {
+                    .articles-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .section-header h2 {
+                        font-size: 1.8rem;
+                    }
+                }
+            `}</style>
+        </section>
     );
 };
 

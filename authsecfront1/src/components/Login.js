@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:1217/api/v1';
 
@@ -12,6 +12,7 @@ const Login = ({ setToken }) => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSliding, setIsSliding] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -35,10 +36,10 @@ const Login = ({ setToken }) => {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-          .join('')
+          atob(base64)
+              .split('')
+              .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+              .join('')
       );
       return JSON.parse(jsonPayload);
     } catch (e) {
@@ -58,7 +59,7 @@ const Login = ({ setToken }) => {
     if (role === 'MANAGER') {
       setMessage(`Bienvenue ${name || 'Manager'} ! Redirection...`);
       setTimeout(() => navigate('/homecompany'), 1500);
-    } else if  (role === 'ADMIN') {
+    } else if (role === 'ADMIN') {
       setMessage(`Bienvenue Admin ${name} ! Redirection...`);
       setTimeout(() => navigate('/admin'), 1500);
     }
@@ -75,224 +76,223 @@ const Login = ({ setToken }) => {
     setMessage('');
     setIsLoading(true);
 
-    /*try {
+    try {
       const response = await axios.post(`${API_BASE_URL}/auth/authenticate`, formData);
-      const { access_token, refresh_token } = response.data;
-
-
+      const { access_token, refresh_token, studentProfileId } = response.data;
 
       if (access_token && refresh_token) {
         storeTokens(access_token, refresh_token);
         const decoded = parseJwt(access_token);
         localStorage.setItem('userId', decoded?.userId);
+
+        if (decoded?.sub) {
+          localStorage.setItem('email', decoded.sub);
+        }
+        if (decoded?.role) {
+          localStorage.setItem('role', decoded.role);
+        }
+        if (studentProfileId) {
+          localStorage.setItem("studentProfileId", studentProfileId);
+        }
+
         redirectUser(decoded, decoded?.name || decoded?.sub || '');
       } else {
         console.error("Tokens not found in Google login response", response.data);
         setMessage("Erreur: tokens manquants dans la réponse Google.");
       }
-
-
     } catch (error) {
       const err = error.response?.data?.message || error.response?.data?.error || 'Login failed';
       setMessage(err);
     } finally {
       setIsLoading(false);
-    }*/
-       //une version avec emailet role stockes dans localstorage
-    try {
-  const response = await axios.post(`${API_BASE_URL}/auth/authenticate`, formData);
-  const { access_token, refresh_token,studentProfileId } = response.data;
-
-  if (access_token && refresh_token) {
-    storeTokens(access_token, refresh_token);
-    const decoded = parseJwt(access_token);
-    localStorage.setItem('userId', decoded?.userId);
-   
-
-
-    // ✅ Stockage de l'email et du rôle
-    if (decoded?.sub) {
-      localStorage.setItem('email', decoded.sub);
     }
-    if (decoded?.role) {
-      localStorage.setItem('role', decoded.role);
-    }
-    if (studentProfileId) {
-      localStorage.setItem("studentProfileId", studentProfileId);
-    }
+  };
 
-    redirectUser(decoded, decoded?.name || decoded?.sub || '');
-
-
-  } else {
-    console.error("Tokens not found in Google login response", response.data);
-    setMessage("Erreur: tokens manquants dans la réponse Google.");
-  }
-
-} catch (error) {
-  const err = error.response?.data?.message || error.response?.data?.error || 'Login failed';
-  setMessage(err);
-} finally {
-  setIsLoading(false);
-}
+  const handleSignUpClick = () => {
+    setIsSliding(true);
+    setTimeout(() => {
+      navigate('/register');
+    }, 500);
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Login</h2>
+      <div style={styles.mainContainer}>
+        <div style={styles.contentContainer}>
+          <div style={styles.leftColumn}>
+            <div style={styles.loginContainer}>
+              <h2 style={styles.title}>Login to Your Account</h2>
 
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputContainer}>
-          <label style={styles.label}>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            style={{ ...styles.input, ...(errors.email && styles.inputError) }}
-            required
-          />
-          {errors.email && <span style={styles.errorText}>{errors.email}</span>}
-        </div>
+              <form onSubmit={handleSubmit} style={styles.form}>
+                <div style={styles.inputGroup}>
+                  <input
+                      type="email"
+                      name="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      style={{ ...styles.input, ...(errors.email && styles.inputError) }}
+                      required
+                  />
+                  {errors.email && <span style={styles.error}>{errors.email}</span>}
+                </div>
 
-        <div style={styles.inputContainer}>
-          <label style={styles.label}>Password</label>
-          <div style={styles.passwordInputWrapper}>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              style={{ ...styles.input, ...(errors.password && styles.inputError) }}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={styles.showPasswordButton}
-            >
-              {showPassword ? '🙈' : '👁️'}
-            </button>
+                <div style={styles.inputGroup}>
+                  <div style={styles.passwordWrapper}>
+                    <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        placeholder="Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        style={{ ...styles.input, ...(errors.password && styles.inputError) }}
+                        required
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={styles.togglePassword}
+                    >
+                      {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                    </button>
+                  </div>
+                  {errors.password && <span style={styles.error}>{errors.password}</span>}
+                </div>
+
+                <button type="submit" disabled={isLoading} style={styles.loginButton}>
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </button>
+              </form>
+
+              <div style={styles.socialSection}>
+                <p style={styles.socialText}>Login using Google</p>
+                <div style={styles.googleButton}>
+                  <GoogleLogin
+                      onSuccess={async (credentialResponse) => {
+                        console.log("Google Credential Response:", credentialResponse);
+                        const idToken = credentialResponse.credential;
+
+                        try {
+                          const response = await axios.post(`${API_BASE_URL}/auth/google`, { idToken });
+                          console.log("Backend Response:", response.data);
+                          const { access_token, refresh_token, studentProfileId } = response.data;
+                          console.log("studentProfileId from backend:", studentProfileId);
+
+                          storeTokens(access_token, refresh_token);
+                          const decoded = parseJwt(access_token);
+                          localStorage.setItem('userId', decoded.userId);
+                          if (studentProfileId) {
+                            localStorage.setItem("studentProfileId", studentProfileId);
+                          }
+                          redirectUser(decoded, decoded.name || decoded.sub || '');
+                        } catch (error) {
+                          setMessage('Erreur lors de la connexion Google');
+                          console.error(error);
+                        }
+                      }}
+                      onError={() => {
+                        setMessage('Échec de la connexion Google');
+                      }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          {errors.password && <span style={styles.errorText}>{errors.password}</span>}
+
+          <div style={{
+            ...styles.rightColumn,
+            transform: isSliding ? 'translateX(-100%)' : 'translateX(0)',
+            transition: 'transform 0.5s ease-in-out'
+          }}>
+            <div style={styles.signupSection}>
+              <p style={styles.signupTitle}>New Here?</p>
+              <p style={styles.signupText}>Sign up and discover a great amount of new opportunities!</p>
+              <button
+                  onClick={handleSignUpClick}
+                  style={styles.signupButton}
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
         </div>
 
-        <button type="submit" disabled={isLoading} style={styles.button}>
-          {isLoading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-
-      <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-        <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            console.log("Google Credential Response:", credentialResponse);
-            const idToken = credentialResponse.credential;
-
-            try {
-              const response = await axios.post(`${API_BASE_URL}/auth/google`, { idToken });
-              console.log("Backend Response:", response.data);
-              const { access_token, refresh_token,studentProfileId } = response.data;
-              console.log("studentProfileId from backend:", studentProfileId);
-
-              storeTokens(access_token, refresh_token);
-              const decoded = parseJwt(access_token);
-              localStorage.setItem('userId', decoded.userId);
-                if (studentProfileId) {
-                localStorage.setItem("studentProfileId", studentProfileId);
-                }
-              redirectUser(decoded, decoded.name || decoded.sub || '');
-            } catch (error) {
-              setMessage('Erreur lors de la connexion Google');
-              console.error(error);
-            }
-          }}
-          onError={() => {
-            setMessage('Échec de la connexion Google');
-          }}
-        />
+        {message && (
+            <div style={message.toLowerCase().includes('fail') || message.toLowerCase().includes('invalid') ? styles.errorMessage : styles.successMessage}>
+              {message}
+            </div>
+        )}
       </div>
-
-
-      <div style={styles.registerLinkContainer}>
-        <p style={styles.registerText}>Don't have an account?</p>
-        <button onClick={() => navigate('/register')} style={styles.textButton}>
-          Register
-        </button>
-      </div>
-
-      {message && (
-        <div
-          style={{
-            ...styles.message,
-            ...(message.toLowerCase().includes('fail') || message.toLowerCase().includes('invalid')
-              ? styles.error
-              : styles.success),
-          }}
-        >
-          {message}
-        </div>
-      )}
-    </div>
   );
 };
 
 const styles = {
-  
-  container: {
-    maxWidth: '400px',
-    margin: '2rem auto',
-    padding: '2rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#ffffff',
-    fontFamily: "'Inter', sans-serif",
+  mainContainer: {
+    display: 'flex',
+    minHeight: '100vh',
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '20px',
+  },
+  contentContainer: {
+    display: 'flex',
+    width: '900px',
+    height: '700px',
+    borderRadius: '10px',
+    overflow: 'hidden',
+    boxShadow: '0 5px 15px rgba(0, 0, 0, 0.1)',
+    position: 'relative',
+  },
+  leftColumn: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: '40px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rightColumn: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    background: 'linear-gradient(135deg, #00acc1, #0097a7)',
+    padding: '40px',
+    position: 'relative',
+  },
+  loginContainer: {
+    width: '100%',
+    maxWidth: '350px',
   },
   title: {
     textAlign: 'center',
-    marginBottom: '1.5rem',
-    fontSize: '1.75rem',
+    color: '#333',
+    fontSize: '24px',
+    marginBottom: '30px',
     fontWeight: '600',
-    color: '#1a1a1a',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
   },
-  inputContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-  },
-  label: {
-    fontSize: '0.875rem',
-    fontWeight: '500',
+  inputGroup: {
+    marginBottom: '20px',
   },
   input: {
-    padding: '0.75rem 1rem',
-    border: '1px solid #e0e0e0',
-    borderRadius: '6px',
-    fontSize: '0.9375rem',
+    width: '100%',
+    padding: '12px 15px',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    fontSize: '16px',
+    boxSizing: 'border-box',
   },
   inputError: {
     borderColor: '#ff4d4f',
   },
-  passwordInputWrapper: {
+  passwordWrapper: {
     position: 'relative',
-    width: '100%',
   },
-  input: {
-    padding: '0.75rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '0.9375rem',
-    width: '100%',
-    boxSizing: 'border-box',
-    letterSpacing: '0.1em', // Pour espacer les astérisques
-    fontFamily: 'monospace', // Pour un rendu uniforme des •
-  },
-  showPasswordButton: {
+  togglePassword: {
     position: 'absolute',
     right: '10px',
     top: '50%',
@@ -300,68 +300,101 @@ const styles = {
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    fontSize: '1rem',
-    color: '#7f8c8d',
-    padding: '0 0.5rem',
-  },
-  registerLinkContainer: {
-    textAlign: 'center',
-    marginTop: '1rem',
-  },
-  registerText: {
-    marginBottom: '0.25rem',
-    fontSize: '0.875rem',
-  },
-  //Register
-  textButton: {
-    background: 'none',
-    border: 'none',
-    color: '#1976d2',
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    fontSize: '0.875rem',
-  },
-  //line separator
-  dividerContainer: {
+    color: '#666',
     display: 'flex',
     alignItems: 'center',
-    margin: '1.5rem 0',
+    justifyContent: 'center',
+    padding: '5px',
   },
-  dividerLine: {
-    flex: 1,
-    height: '1px',
-    backgroundColor: '#e0e0e0',
+  loginButton: {
+    backgroundColor: '#00acc1',
+    color: 'white',
+    padding: '12px',
+    border: 'none',
+    borderRadius: '5px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+    marginTop: '10px',
+    ':hover': {
+      backgroundColor: '#0097a7',
+    }
   },
-  //OR
-  dividerText: {
-    padding: '0 1rem',
-    fontSize: '0.875rem',
-    color: '#999999',
+  socialSection: {
+    marginTop: '30px',
+    textAlign: 'center',
   },
-  googleBtnContainer: {
+  socialText: {
+    color: '#666',
+    fontSize: '14px',
+    marginBottom: '15px',
+  },
+  googleButton: {
     display: 'flex',
     justifyContent: 'center',
   },
-  message: {
-    marginTop: '1rem',
-    padding: '0.75rem',
-    borderRadius: '6px',
+  signupSection: {
+    width: '100%',
+    maxWidth: '300px',
     textAlign: 'center',
-    fontSize: '0.875rem',
+    color: 'white',
   },
-  success: {
-    backgroundColor: '#f6ffed',
-    color: '#52c41a',
-    border: '1px solid #b7eb8f',
+  signupTitle: {
+    fontSize: '28px',
+    fontWeight: '600',
+    marginBottom: '15px',
+  },
+  signupText: {
+    fontSize: '16px',
+    marginBottom: '30px',
+    lineHeight: '1.5',
+  },
+  signupButton: {
+    backgroundColor: 'transparent',
+    color: 'white',
+    padding: '12px 30px',
+    border: '2px solid white',
+    borderRadius: '5px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    ':hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    }
   },
   error: {
+    color: '#ff4d4f',
+    fontSize: '12px',
+    marginTop: '5px',
+    display: 'block',
+  },
+  errorMessage: {
+    position: 'fixed',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
     backgroundColor: '#fff2f0',
     color: '#ff4d4f',
-    border: '1px solid #ffccc7',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    fontSize: '14px',
+    textAlign: 'center',
+    maxWidth: '80%',
   },
-  errorText: {
-    color: '#ff4d4f',
-    fontSize: '0.75rem',
+  successMessage: {
+    position: 'fixed',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: '#f6ffed',
+    color: '#52c41a',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    fontSize: '14px',
+    textAlign: 'center',
+    maxWidth: '80%',
   },
 };
 

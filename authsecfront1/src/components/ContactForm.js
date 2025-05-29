@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { FiSend, FiUser, FiMail, FiMessageSquare } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 const ContactForm = ({onClose}) => {
     const [formData, setFormData] = useState({
         fullName: '',
@@ -104,102 +105,223 @@ const ContactForm = ({onClose}) => {
     };
 
     return (
-        <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="card shadow">
-                        <div className="card-body p-4">
-                            <h2 className="card-title text-center mb-4">Contactez-nous</h2>
+        <motion.div
+            className="contact-form-modern"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <h3 className="form-title">Contactez notre équipe</h3>
+            <p className="form-subtitle">Nous répondrons dans les plus brefs délais</p>
 
-                            {showAlert && (
-                                <div className={`alert alert-${alertType} alert-dismissible fade show`}>
-                                    {alertMessage}
-                                    <button
-                                        type="button"
-                                        className="btn-close"
-                                        onClick={() => setShowAlert(false)}
-                                    ></button>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label htmlFor="fullName" className="form-label">Nom complet</label>
-                                    <input
-                                        type="text"
-                                        className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
-                                        id="fullName"
-                                        name="fullName"
-                                        value={formData.fullName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {errors.fullName && <div className="invalid-feedback">{errors.fullName}</div>}
-                                </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="email" className="form-label">Email</label>
-                                    <input
-                                        type="email"
-                                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                                        id="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-                                </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="subject" className="form-label">Sujet</label>
-                                    <input
-                                        type="text"
-                                        className={`form-control ${errors.subject ? 'is-invalid' : ''}`}
-                                        id="subject"
-                                        name="subject"
-                                        value={formData.subject}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {errors.subject && <div className="invalid-feedback">{errors.subject}</div>}
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor="message" className="form-label">Message</label>
-                                    <textarea
-                                        className={`form-control ${errors.message ? 'is-invalid' : ''}`}
-                                        id="message"
-                                        name="message"
-                                        rows="5"
-                                        value={formData.message}
-                                        onChange={handleChange}
-                                        required
-                                    ></textarea>
-                                    {errors.message && <div className="invalid-feedback">{errors.message}</div>}
-                                </div>
-
-                                <div className="d-grid">
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary btn-lg"
-                                        disabled={isSubmitting}
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                                                Envoi en cours...
-                                            </>
-                                        ) : 'Envoyer le message'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+            {showAlert && (
+                <div className={`alert ${alertType}`}>
+                    {alertMessage}
+                    <button onClick={() => setShowAlert(false)}>×</button>
                 </div>
-            </div>
-        </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="fullName">
+                        <FiUser className="input-icon" />
+                        Nom complet
+                    </label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        placeholder="Votre nom complet"
+                    />
+                    {errors.fullName && <span className="error-message">{errors.fullName}</span>}
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="email">
+                        <FiMail className="input-icon" />
+                        Email
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="votre@email.com"
+                    />
+                    {errors.email && <span className="error-message">{errors.email}</span>}
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="subject">
+                        <FiMessageSquare className="input-icon" />
+                        Sujet
+                    </label>
+                    <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        placeholder="Objet de votre message"
+                    />
+                    {errors.subject && <span className="error-message">{errors.subject}</span>}
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="message">Votre message</label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows="5"
+                        value={formData.message}
+                        onChange={handleChange}
+                        placeholder="Décrivez votre demande en détail..."
+                    ></textarea>
+                    {errors.message && <span className="error-message">{errors.message}</span>}
+                </div>
+
+                <motion.button
+                    type="submit"
+                    className="submit-btn"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={isSubmitting}
+                >
+                    <FiSend className="btn-icon" />
+                    {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
+                </motion.button>
+            </form>
+
+            <style jsx>{`
+                .contact-form-modern {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                    background: white;
+                    border-radius: 16px;
+                    box-shadow: 0 10px 30px rgba(0, 123, 143, 0.1);
+                }
+                
+                .form-title {
+                    font-size: 1.8rem;
+                    color: var(--primary-color);
+                    margin-bottom: 0.5rem;
+                    text-align: center;
+                }
+                
+                .form-subtitle {
+                    color: #666;
+                    text-align: center;
+                    margin-bottom: 2rem;
+                }
+                
+                .form-group {
+                    margin-bottom: 1.5rem;
+                }
+                
+                .form-group label {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 0.5rem;
+                    font-weight: 500;
+                    color: var(--text-color);
+                }
+                
+                .input-icon {
+                    margin-right: 0.5rem;
+                    color: var(--primary-color);
+                }
+                
+                input, textarea {
+                    width: 100%;
+                    padding: 0.75rem 1rem;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;
+                }
+                
+                textarea {
+                    min-height: 150px;
+                    resize: vertical;
+                }
+                
+                input:focus, textarea:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(0, 123, 143, 0.2);
+                }
+                
+                .error-message {
+                    color: #e53e3e;
+                    font-size: 0.875rem;
+                    margin-top: 0.25rem;
+                    display: block;
+                }
+                
+                .submit-btn {
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    padding: 1rem 2rem;
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .submit-btn:hover {
+                    background: var(--secondary-color);
+                }
+                
+                .submit-btn:disabled {
+                    background: #cccccc;
+                    cursor: not-allowed;
+                }
+                
+                .btn-icon {
+                    margin-right: 0.5rem;
+                }
+                
+                .alert {
+                    padding: 1rem;
+                    margin-bottom: 1.5rem;
+                    border-radius: 8px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .alert.success {
+                    background: #f0fff4;
+                    color: #2f855a;
+                    border: 1px solid #c6f6d5;
+                }
+                
+                .alert.danger {
+                    background: #fff5f5;
+                    color: #c53030;
+                    border: 1px solid #fed7d7;
+                }
+                
+                .alert button {
+                    background: none;
+                    border: none;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                }
+            `}</style>
+        </motion.div>
     );
 };
 
 export default ContactForm;
+

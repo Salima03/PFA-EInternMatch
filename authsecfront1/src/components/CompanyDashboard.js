@@ -10,7 +10,18 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { ClockHistory, Briefcase, PersonCheck, FileEarmarkText } from 'react-bootstrap-icons';
 
 // Color palette
-const COLORS = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7', '#9c755f', '#bab0ac'];
+const COLORS = [
+    '#00838f', // Teinte principale de votre plateforme
+    '#00acc1', // Teinte secondaire
+    '#4fb3bf', // Variation plus claire du bleu-vert
+    '#007c91', // Variation plus foncée
+    '#5ddef4', // Bleu-vert très clair pour accents
+    '#ff9e80', // Corail doux pour contrastes
+    '#a5d6a7', // Vert pastel harmonieux
+    '#80deea', // Bleu clair aérien
+    '#26c6da', // Cyan vif
+    '#b2ebf2'  // Bleu très clair
+];
 
 const EmptyDataPlaceholder = ({ message }) => (
     <div className="d-flex justify-content-center align-items-center h-100">
