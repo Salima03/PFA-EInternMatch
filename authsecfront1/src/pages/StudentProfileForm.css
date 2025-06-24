@@ -1,188 +1,4 @@
-/* StudentProfileForm.css */
-/*
-.form-wrapper {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 30px;
-    background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  input[type="text"],
-  input[type="date"],
-  input[type="file"],
-  textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 1rem;
-  }
-  
-  textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  h3 {
-    margin-top: 30px;
-    font-size: 1.5rem;
-    color: #333;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 5px;
-  }
-  
-  button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    background-color: #4caf50;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #45a049;
-  }
-  
-  button[type="button"] {
-    background-color: #2196f3;
-  }
-  
-  button[type="button"]:hover {
-    background-color: #1976d2;
-  }
-  
-  .save-button {
-    background-color: #4caf50;
-  }
-  
-  .save-button:hover {
-    background-color: #45a049;
-  }
-  
-  .delete-button {
-    background-color: #f44336;
-    margin-left: 10px;
-  }
-  
-  .delete-button:hover {
-    background-color: #d32f2f;
-  }
-  
-  .form-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-  
-  .array-item {
-    display: grid;
-    gap: 10px;
-    margin-top: 10px;
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 10px;
-  }
-  
-  .error-message {
-    color: #d32f2f;
-    background-color: #ffe2e2;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  
-  .cover-photo-container {
-    position: relative;
-    margin-bottom: 30px;
-  }
-  
-  .cover-photo-wrapper {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    background: #eee;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  
-  .cover-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .cover-photo-placeholder {
-    width: 100%;
-    height: 200px;
-    background: #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-  }
-  
-  .edit-cover-button {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(33, 150, 243, 0.8);
-    padding: 8px 12px;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-  
-  .profile-picture-wrapper {
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-  }
-  
-  .profile-picture-container {
-    width: 100px;
-    height: 100px;
-    border: 4px solid white;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #fff;
-  }
-  
-  .profile-picture-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .edit-profile-button {
-    margin-top: 10px;
-    background: rgba(76, 175, 80, 0.8);
-    padding: 6px 10px;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    font-size: 0.9rem;
-    display: inline-block;
-  }
-  */
 
-  /* StudentProfileForm.css - Modern Style */
 
 .form-wrapper {
   max-width: 1000px;
@@ -201,7 +17,7 @@ form {
   gap: 1.5rem;
 }
 
-/* Input Fields */
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -236,7 +52,7 @@ textarea {
   min-height: 120px;
 }
 
-/* Headings */
+
 h3 {
   margin-top: 2rem;
   font-size: 1.5rem;
@@ -245,15 +61,15 @@ h3 {
   border-bottom: 2px solid #f0f0f0;
   font-weight: 600;
 }
-/*certificats*/
+
 .certification-section {
   margin-bottom: 1.5rem;
 }
 
 .certification-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 colonnes égales */
-  gap: 2rem; /* espace entre les champs */
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 2rem; 
 }
 
 .certification-grid input {
@@ -263,7 +79,7 @@ h3 {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
-/*pour le cv et la lettre*/
+
 .file-upload-section {
   display: flex;
   gap: 2rem;
@@ -313,7 +129,6 @@ h3 {
 }
 
 
-/* Buttons */
 button {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -358,7 +173,7 @@ button {
   transform: translateY(-1px);
 }
 
-/* Button Container */
+
 .form-buttons {
   display: flex;
   gap: 1rem;
@@ -366,7 +181,6 @@ button {
   margin-top: 2rem;
 }
 
-/* Array Items */
 .array-item {
   display: grid;
   gap: 1rem;
@@ -377,7 +191,6 @@ button {
   border-left: 4px solid #4caf50;
 }
 
-/* Error Message */
 .error-message {
   color: #d32f2f;
   background-color: #ffebee;
@@ -389,7 +202,6 @@ button {
   border-left: 4px solid #f44336;
 }
 
-/* Photo Upload Styles */
 .cover-photo-container {
   position: relative;
   margin-bottom: 3rem;
@@ -500,7 +312,6 @@ button {
   margin-right: 0.5rem;
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
   .form-wrapper {
       padding: 1.5rem;
@@ -516,4 +327,114 @@ button {
       width: 100px;
       height: 100px;
   }
+}
+
+
+
+
+/* Styles pour les notifications */
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  z-index: 1000;
+}
+
+.notification {
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards;
+  transform: translateX(120%);
+}
+
+.notification.success {
+  background-color: #4CAF50;
+}
+
+.notification.error {
+  background-color: #F44336;
+}
+
+.notification.warning {
+  background-color: #FF9800;
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+.close-notification {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/*pour les erreurs de validation*/
+/* Style de base pour les inputs */
+.input-group {
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.input-date {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.input-date:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* Style quand le champ est invalide */
+.input-date.invalid {
+  border-color: #ef4444;
+}
+
+.input-date.invalid:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Style du message d'erreur */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.2s ease;
+}
+
+.error-message.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Icône d'erreur moderne */
+.error-icon {
+  width: 14px;
+  height: 14px;
 }

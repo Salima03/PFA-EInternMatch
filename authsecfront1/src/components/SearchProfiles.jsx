@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import api from "./api1";
 import { useNavigate } from "react-router-dom";
 
 const DEFAULT_PROFILE_PICTURE = "https://via.placeholder.com/40?text=NA";
@@ -11,6 +10,21 @@ const SearchProfiles = () => {
   const [images, setImages] = useState({});
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
+  const searchRef = useRef(null);
+
+  // Gestion du clic en dehors
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -50,6 +64,7 @@ const SearchProfiles = () => {
   };
 
   const handleProfileClick = (userId, role) => {
+    setIsFocused(false);
     if (role === "MANAGER") {
       navigate(`/profilecompany/${userId}?role=${role}`);
     } else {
@@ -57,134 +72,119 @@ const SearchProfiles = () => {
     }
   };
 
-  // Styles modernisés
+  // Styles avec positionnement absolu contrôlé
   const styles = {
-    container: {
+    outerContainer: {
+      position: "relative",
       width: "100%",
       maxWidth: "600px",
-      margin: "32px auto",
+      margin: "20px auto",
+      zIndex: 1000, // Assure la priorité sur le hidebar
+    },
+    innerContainer: {
       position: "relative",
+      padding: "0 15px",
     },
     searchInput: {
       width: "100%",
-      padding: "16px 24px",
+      padding: "12px 20px",
       border: "none",
       borderRadius: "30px",
-      fontSize: "1rem",
+      fontSize: "0.95rem",
       outline: "none",
-      background: "rgba(255, 255, 255, 0.2)",
-      backdropFilter: "blur(10px)",
-      boxShadow: `
-        0 4px 6px rgba(0, 0, 0, 0.1),
-        inset 0 1px 2px rgba(255, 255, 255, 0.2)
-      `,
+      background: "rgba(255, 255, 255, 0.9)",
+      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
       color: "#333",
       transition: "all 0.3s ease",
-      ...(isFocused && {
-        boxShadow: `
-          0 6px 12px rgba(0, 0, 0, 0.15),
-          inset 0 1px 2px rgba(255, 255, 255, 0.3)
-        `,
-        background: "rgba(255, 255, 255, 0.3)",
-      }),
     },
     resultsList: {
       position: "absolute",
-      width: "100%",
-      background: "rgba(255, 255, 255, 0.9)",
-      backdropFilter: "blur(10px)",
+      top: "calc(100% + 5px)",
+      left: "15px",
+      right: "15px",
+      background: "#fff",
       borderRadius: "12px",
-      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-      marginTop: "8px",
-      padding: "8px 0",
-      maxHeight: "400px",
+      boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
+      maxHeight: "60vh",
       overflowY: "auto",
-      zIndex: 100,
+      zIndex: 1001, // Au-dessus de l'input
       opacity: 0,
+      visibility: "hidden",
       transform: "translateY(-10px)",
-      animation: "fadeIn 0.3s ease-out forwards",
-      border: "1px solid rgba(255, 255, 255, 0.3)",
-      ...(results.length > 0 && {
+      transition: "all 0.2s ease",
+      ...(isFocused && results.length > 0 && {
         opacity: 1,
+        visibility: "visible",
         transform: "translateY(0)",
       }),
     },
     resultItem: {
       display: "flex",
       alignItems: "center",
-      padding: "12px 24px",
+      padding: "12px 20px",
       cursor: "pointer",
-      transition: "all 0.2s ease",
-      borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
-      ":hover": {
-        background: "rgba(0, 0, 0, 0.03)",
-        transform: "translateX(5px)",
+      borderBottom: "1px solid #f0f0f0",
+      "&:hover": {
+        background: "#f8f8f8",
       },
-      ":active": {
-        transform: "scale(0.98)",
+      "&:last-child": {
+        borderBottom: "none",
       },
     },
     userInfo: {
-      display: "flex",
-      flexDirection: "column",
-      flexGrow: 1,
+      flex: 1,
+      marginRight: "12px",
     },
     userName: {
-      fontWeight: 600,
+      fontWeight: "600",
       color: "#222",
-      fontSize: "0.95rem",
     },
     userRole: {
-      color: "rgba(0, 0, 0, 0.5)",
       fontSize: "0.8rem",
-      marginTop: "4px",
+      color: "#666",
     },
     userAvatar: {
       width: "40px",
       height: "40px",
       borderRadius: "50%",
       objectFit: "cover",
-      marginLeft: "16px",
-      border: "2px solid rgba(255, 255, 255, 0.5)",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
     },
   };
 
   return (
-    <div style={styles.container}>
-      <input
-        type="text"
-        style={styles.searchInput}
-        placeholder="🔍 Rechercher un profil..."
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-      />
+    <div style={styles.outerContainer}>
+      <div style={styles.innerContainer} ref={searchRef}>
+        <input
+          type="text"
+          style={styles.searchInput}
+          placeholder="🔍 Rechercher un profil..."
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+        />
 
-      {results.length > 0 && (
-        <ul style={styles.resultsList}>
+        <div style={styles.resultsList}>
           {results.map((user) => (
-            <li
+            <div
               key={user.userId}
               style={styles.resultItem}
               onClick={() => handleProfileClick(user.userId, user.role)}
             >
               <div style={styles.userInfo}>
-                <span style={styles.userName}>
+                <div style={styles.userName}>
                   {user.firstname} {user.lastname}
-                </span>
-                <span style={styles.userRole}>{user.role}</span>
+                </div>
+                <div style={styles.userRole}>{user.role}</div>
               </div>
               <img
                 src={images[user.userId] || DEFAULT_PROFILE_PICTURE}
                 alt="Profile"
                 style={styles.userAvatar}
               />
-            </li>
+            </div>
           ))}
-        </ul>
-      )}
+        </div>
+      </div>
     </div>
   );
 };

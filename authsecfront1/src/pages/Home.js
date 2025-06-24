@@ -297,27 +297,8 @@ const Home = ({ onAddFavorite }) => {
   return (
    
     <div className="home-container">
-      {/*
-      {!loadingProfile && (
-        <div onClick={handleImageClick} style={{ cursor: "pointer", textAlign: "center", marginBottom: "30px" }}>
-          <img
-            src={profilePictureUrl}
-            alt="Avatar utilisateur"
-            style={{
-              borderRadius: "50%",
-              width: "120px",
-              height: "120px",
-              objectFit: "cover",
-              border: "2px solid #ccc"
-            }}
-          />
-          <p style={{ marginTop: "10px" }}>
-            {profile ? "Bienvenue dans votre espace étudiant !" : "Créez votre profil pour commencer"}
-          </p>
-        </div>
-      )}
-      */}
-       {/* Filtres */}
+     
+   
       <div className="filters-container">
         <input
           type="text"
@@ -341,21 +322,7 @@ const Home = ({ onAddFavorite }) => {
 
 
       <p className="offers-header">{` ${offers.length} Offers`}</p>
-      {/*<button
-        onClick={() => navigate("/my-applications")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          marginBottom: "20px"
-        }}
-      >
-        Mes Postulations
-      </button>
-        */}
+     
 
       {offers.map((offer, index) => (
         <OfferCard

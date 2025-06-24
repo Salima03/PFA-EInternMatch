@@ -33,7 +33,52 @@ const StudentProfileEdit = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [profileExists, setProfileExists] = useState(false);
 
+
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+
+  const [validationErrors, setValidationErrors] = useState({
+  certifications: [],
+  educations: [],
+  experiences: []
+});
+// Fonction pour ajouter une notification
+ const addNotification = (message, type = 'success', duration = 5000) => {
+  return new Promise((resolve) => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    
+    setTimeout(() => {
+      removeNotification(id);
+      resolve();
+    }, duration);
+  });
+};
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  };
+  // Fonction de validation des dates
+const validateDate = (dateString) => {
+  if (!dateString) return true; // Permettre les champs vides si nécessaire
+  
+  // Expression régulière pour le format aaaa-mm-jj
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!regex.test(dateString)) {
+    return false;
+  }
+
+  // Vérification supplémentaire de la validité de la date
+  const date = new Date(dateString);
+  const timestamp = date.getTime();
+  
+  // Vérifie si la date est valide
+  if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
+    return false;
+  }
+
+  return true;
+};
 
   useEffect(() => {
     fetchProfile();
@@ -145,6 +190,34 @@ const StudentProfileEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+      // Valider toutes les dates avant soumission
+  const certErrors = profile.certifications.map(cert => ({
+    issueDate: !validateDate(cert.issueDate) && cert.issueDate,
+    expirationDate: !validateDate(cert.expirationDate) && cert.expirationDate
+  }));
+
+  const eduErrors = profile.educations.map(edu => ({
+    startDate: !validateDate(edu.startDate) && edu.startDate,
+    endDate: !validateDate(edu.endDate) && edu.endDate
+  }));
+
+  const expErrors = profile.experiences.map(exp => ({
+    startDate: !validateDate(exp.startDate) && exp.startDate,
+    endDate: !validateDate(exp.endDate) && exp.endDate
+  }));
+
+  setValidationErrors({
+    certifications: certErrors,
+    educations: eduErrors,
+    experiences: expErrors
+  });
+
+  // Vérifier s'il y a des erreurs
+  const hasErrors = certErrors.some(err => err.issueDate || err.expirationDate) ||
+                   eduErrors.some(err => err.startDate || err.endDate) ||
+                   expErrors.some(err => err.startDate || err.endDate);
+
+
     const token = localStorage.getItem("accessToken");
     if (!token) {
       navigate("/login");
@@ -161,38 +234,38 @@ const StudentProfileEdit = () => {
 
     setLoading(true);
 
-    try {
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
-      if (profileExists && profile.id) {
-        await axios.put(`${API_BASE_URL}/${profile.id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          },
-        });
-        alert('Profil mis à jour avec succès !');
-      } else {
-        const response = await axios.post(`${API_BASE_URL}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          },
-        });
-        setProfile(response.data);
-        setProfileExists(true);
-        alert('Profil créé avec succès !');
-      }
+  
+  
+   try {
+    if (profileExists && profile.id) {
+      await axios.put(`${API_BASE_URL}/${profile.id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        },
+      });
+      await addNotification('Profil mis à jour avec succès !');
       navigate('/profile/view');
-    } catch (err) {
+    } else {
+      const response = await axios.post(`${API_BASE_URL}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        },
+      });
+      setProfile(response.data);
+      setProfileExists(true);
+      await addNotification('Profil créé avec succès !');
+      navigate('/profile/view');
+    }
+  } catch (err) {
+      let errorMessage = "Erreur inconnue.";
       if (err.response?.status === 403) {
-        setError("Accès refusé. Vérifiez votre connexion.");
+        errorMessage = "Accès refusé. Vérifiez votre connexion.";
       } else if (err.response?.status === 500) {
-        setError("Erreur serveur. Vérifiez vos données.");
-      } else {
-        setError("Erreur inconnue.");
+        errorMessage = "Erreur serveur. Vérifiez vos données.";
       }
+      addNotification(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -213,165 +286,41 @@ const StudentProfileEdit = () => {
     const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer votre profil ?");
     if (!confirmed) return;
 
-    try {
-      await axios.delete(`${API_BASE_URL}/${profile.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert('Profil supprimé avec succès.');
-      localStorage.removeItem('accessToken');
-      navigate('/login');
-    } catch (err) {
+      try {
+    await axios.delete(`${API_BASE_URL}/${profile.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    await addNotification('Profil supprimé avec succès.');
+    localStorage.removeItem('accessToken');
+    navigate('/login');
+  } catch (err) {
+      let errorMessage = "Erreur lors de la suppression du profil.";
       if (err.response?.status === 403) {
-        setError("Accès refusé. Vous n'avez pas les droits pour supprimer ce profil.");
-      } else {
-        setError("Erreur lors de la suppression du profil.");
+        errorMessage = "Accès refusé. Vous n'avez pas les droits pour supprimer ce profil.";
       }
+      addNotification(errorMessage, 'error');
     }
   };
-/*
-  return (
-    <div className="form-wrapper">
-      {loading ? <p>Chargement...</p> : (
-        <form onSubmit={handleSubmit}>
   
-          <div className="cover-photo-container">
-            <div className="cover-photo-wrapper">
-              {coverPhoto ? (
-                <img src={coverPhoto} alt="Cover" className="cover-photo" />
-              ) : (
-                <div className="cover-photo-placeholder" />
-              )}
-              <label className="edit-cover-button">
-                Modifier cover
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleCoverChange}
-                />
-              </label>
-            </div>
-  
-            <div className="profile-picture-wrapper">
-              <div className="profile-picture-container">
-                <img src={profilePicture} alt="Profile" />
-              </div>
-              <label className="edit-profile-button">
-                Modifier photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleProfilePictureChange}
-                />
-              </label>
-            </div>
-          </div>
-  
-          {error && <p className="error-message">{error}</p>}
-  
-          <label>Headline
-            <input name="headline" value={profile.headline} onChange={handleChangeProfileField} />
-          </label>
-  
-          <label>Résumé
-            <textarea name="summary" value={profile.summary} onChange={handleChangeProfileField} />
-          </label>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <div style={{ marginLeft: "30px" }}>
-          <h2>{profile.firstName} {profile.lastName}</h2>
-        </div>
-        <div style={{ marginRight: "30px" }}>
-          <button onClick={() => setShowContacts(!showContacts)} style={{
-            padding: "8px 12px",
-            borderRadius: "20px",
-            border: "1px solid #ccc",
-            backgroundColor: "#f9f9f9",
-            cursor: "pointer"
-          }}>
-            Contacts
-          </button>
-          {showContacts && (
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
-              <p><strong>Téléphone:</strong> {profile.phone}</p>
-              <p><strong>Email:</strong> {profile.email}</p>
-              <p><strong>Localisation:</strong> {profile.location}</p>
-            </div>
-          )}
-        </div>
-      </div>
-  
-          <h3>Certifications</h3>
-          {profile.certifications.map((cert, index) => (
-            <div key={index}>
-              <input name="name" placeholder="Nom" value={cert.name} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="issuingOrganization" placeholder="Organisme" value={cert.issuingOrganization} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="issueDate" placeholder="Date d'obtention" value={cert.issueDate} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="expirationDate" placeholder="Date d'expiration" value={cert.expirationDate} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="credentialId" placeholder="ID" value={cert.credentialId} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="credentialUrl" placeholder="URL" value={cert.credentialUrl} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <button type="button" onClick={() => removeArrayItem('certifications', index)}>Supprimer</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => addArrayItem('certifications', { name: '', issuingOrganization: '', issueDate: '', expirationDate: '', credentialId: '', credentialUrl: '' })}>Ajouter Certification</button>
-  
-          <h3>Formations</h3>
-          {profile.educations.map((edu, index) => (
-            <div key={index}>
-              <input name="school" placeholder="École" value={edu.school} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <input name="degree" placeholder="Diplôme" value={edu.degree} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <input name="fieldOfStudy" placeholder="Domaine" value={edu.fieldOfStudy} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <input name="startDate" placeholder="Début" value={edu.startDate} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <input name="endDate" placeholder="Fin" value={edu.endDate} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <textarea name="description" placeholder="Description" value={edu.description} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <button type="button" onClick={() => removeArrayItem('educations', index)}>Supprimer</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => addArrayItem('educations', { school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', description: '' })}>Ajouter Formation</button>
-  
-          <h3>Expériences</h3>
-          {profile.experiences.map((exp, index) => (
-            <div key={index}>
-              <input name="title" placeholder="Poste" value={exp.title} onChange={(e) => handleArrayChange('experiences', index, e)} />
-              <input name="company" placeholder="Entreprise" value={exp.company} onChange={(e) => handleArrayChange('experiences', index, e)} />
-              <input name="location" placeholder="Lieu" value={exp.location} onChange={(e) => handleArrayChange('experiences', index, e)} />
-              <input name="startDate" placeholder="Début" value={exp.startDate} onChange={(e) => handleArrayChange('experiences', index, e)} />
-              <input name="endDate" placeholder="Fin" value={exp.endDate} onChange={(e) => handleArrayChange('experiences', index, e)} />
-              <textarea name="description" placeholder="Description" value={exp.description} onChange={(e) => handleArrayChange('experiences', index, e)} />
-              <button type="button" onClick={() => removeArrayItem('experiences', index)}>Supprimer</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => addArrayItem('experiences', { title: '', company: '', location: '', startDate: '', endDate: '', description: '' })}>Ajouter Expérience</button>
-  
-          <h3>Compétences</h3>
-          {profile.skills.map((skill, index) => (
-            <div key={index}>
-              <input name="name" placeholder="Compétence" value={skill.name} onChange={(e) => handleArrayChange('skills', index, e)} />
-              <button type="button" onClick={() => removeArrayItem('skills', index)}>Supprimer</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => addArrayItem('skills', { name: '' })}>Ajouter Compétence</button>
-  
-          <label>CV (PDF)
-            <input type="file" accept=".pdf" onChange={(e) => handleFileChange(e, setCvFile)} />
-          </label>
-  
-          <label>Lettre de motivation (PDF)
-            <input type="file" accept=".pdf" onChange={(e) => handleFileChange(e, setLetterFile)} />
-          </label>
-  
-          <button type="submit">{profileExists ? 'Mettre à jour' : 'Créer Profil'}</button>
-          {profileExists && <button type="button" onClick={handleDeleteProfile}>Supprimer Profil</button>}
-        </form>
-      )}
-    </div>
-  );
-  */
+
  //assia
   return (
     <div className="layout"> 
     <Sidebar />
-
+ {/* Ajoutez ce conteneur de notifications en haut de votre page */}
+      <div className="notification-container">
+        {notifications.map(notification => (
+          <div key={notification.id} className={`notification ${notification.type}`}>
+            {notification.message}
+            <span 
+              className="close-notification" 
+              onClick={() => removeNotification(notification.id)}
+            >
+              &times;
+            </span>
+          </div>
+        ))}
+      </div>
     
       <main className="page-content">
     <div className="form-wrapper">
@@ -451,39 +400,33 @@ const StudentProfileEdit = () => {
           <label>Résumé
             <textarea name="summary" value={profile.summary} onChange={handleChangeProfileField} />
           </label>
-          
-        {/*  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <div style={{ marginLeft: "30px" }}>
-          <h2>{profile.firstName} {profile.lastName}</h2>
-        </div>
-        <div style={{ marginRight: "30px" }}>
-          <button onClick={() => setShowContacts(!showContacts)} style={{
-            padding: "8px 12px",
-            borderRadius: "20px",
-            border: "1px solid #ccc",
-            backgroundColor: "#f9f9f9",
-            cursor: "pointer"
-          }}>
-            Contacts
-          </button>
-          {showContacts && (
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
-              <p><strong>Téléphone:</strong> {profile.phone}</p>
-              <p><strong>Email:</strong> {profile.email}</p>
-              <p><strong>Localisation:</strong> {profile.location}</p>
-            </div>
-          )}
-        </div>
-      </div>
-      */}
+       
           <h3>Certificats</h3>
           {profile.certifications.map((cert, index) => (
             <div key={index}>
               <div className="certification-grid">
               <input name="name" placeholder="Nom" value={cert.name} onChange={(e) => handleArrayChange('certifications', index, e)} />
               <input name="issuingOrganization" placeholder="Organisme" value={cert.issuingOrganization} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="issueDate" placeholder="Date d'obtention  aaaa-mm-jj" value={cert.issueDate} onChange={(e) => handleArrayChange('certifications', index, e)} />
-              <input name="expirationDate" placeholder="Date d'expiration  aaaa-mm-jj" value={cert.expirationDate} onChange={(e) => handleArrayChange('certifications', index, e)} />
+                 <input 
+      name="issueDate" 
+      placeholder="Date d'obtention (aaaa-mm-jj)" 
+      value={cert.issueDate} 
+      onChange={(e) => handleArrayChange('certifications', index, e)} 
+    />
+    {validationErrors.certifications[index]?.issueDate && (
+      <span className="error-text">Format invalide (aaaa-mm-jj requis)</span>
+    )}
+    
+    <input 
+      name="expirationDate" 
+      placeholder="Date d'expiration (aaaa-mm-jj)" 
+      value={cert.expirationDate} 
+      onChange={(e) => handleArrayChange('certifications', index, e)} 
+    />
+    {validationErrors.certifications[index]?.expirationDate && (
+      <span className="error-text">Format invalide (aaaa-mm-jj requis)</span>
+    )}
+
             
               <input name="credentialUrl" placeholder="URL" value={cert.credentialUrl} onChange={(e) => handleArrayChange('certifications', index, e)} />
               
@@ -502,8 +445,41 @@ const StudentProfileEdit = () => {
               <input name="school" placeholder="École" value={edu.school} onChange={(e) => handleArrayChange('educations', index, e)} />
               <input name="degree" placeholder="Diplôme" value={edu.degree} onChange={(e) => handleArrayChange('educations', index, e)} />
               <input name="fieldOfStudy" placeholder="Domaine" value={edu.fieldOfStudy} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <input name="startDate" placeholder="Début" value={edu.startDate} onChange={(e) => handleArrayChange('educations', index, e)} />
-              <input name="endDate" placeholder="Fin" value={edu.endDate} onChange={(e) => handleArrayChange('educations', index, e)} />
+              <div className="input-group">
+  <input
+    name="startDate"
+    className={`input-date ${validationErrors.educations[index]?.startDate ? 'invalid' : ''}`}
+    placeholder="Début (aaaa-mm-jj)"
+    value={edu.startDate}
+    onChange={(e) => handleArrayChange('educations', index, e)}
+  />
+  {validationErrors.educations[index]?.startDate && (
+    <div className="error-message visible">
+      <svg className="error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Format invalide (aaaa-mm-jj requis)
+    </div>
+  )}
+</div>
+
+<div className="input-group">
+  <input
+    name="endDate"
+    className={`input-date ${validationErrors.educations[index]?.endDate ? 'invalid' : ''}`}
+    placeholder="Fin (aaaa-mm-jj)"
+    value={edu.endDate}
+    onChange={(e) => handleArrayChange('educations', index, e)}
+  />
+  {validationErrors.educations[index]?.endDate && (
+    <div className="error-message visible">
+      <svg className="error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Format invalide (aaaa-mm-jj requis)
+    </div>
+  )}
+</div>
               </div>
               <p></p>
               <textarea name="description" placeholder="Description" value={edu.description} onChange={(e) => handleArrayChange('educations', index, e)} />

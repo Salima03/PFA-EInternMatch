@@ -23,8 +23,8 @@ import java.util.Optional;
 
 @RestController
 
-@RequestMapping("/api/v1/api/search")
-//@RequestMapping("/api/search")
+//@RequestMapping("/api/v1/api/search")
+@RequestMapping("/api/search")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class SearchProfileController {

@@ -23,17 +23,6 @@ const Header = ({ onSearchChange, favoritesCount }) => {
     const [loadingProfile, setLoadingProfile] = useState(true);
      
 
-  /*useEffect(() => {
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setFullName(`${payload.firstname} ${payload.lastname}`);
-      } catch (e) {
-        console.error("Erreur de décodage du token", e);
-      }
-    }
-  }, [token]);
-*/
   const handleInputChange = (e) => {
     onSearchChange(e.target.value);
   };

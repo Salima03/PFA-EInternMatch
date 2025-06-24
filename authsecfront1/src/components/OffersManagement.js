@@ -266,7 +266,7 @@ const OffersManagement = () => {
           <div style={styles.detailsFooter}>
             <Link to={`/applications/${offer.id}`} style={styles.applicationLink}>
               <i className="fas fa-users" style={styles.detailIcon}></i>
-              Candidatures ({offer.applicationCount || 0})
+              Candidatures
             </Link>
             <div style={styles.detailsActions}>
               <button

@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import api from "../components/api1";
 import './StudentProfileForm.css'; // <-- Ton CSS importé ici
+import Sidebar from '../layout/Sidebar';
 
-//const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:1217/api/v1/profiles';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:1217/api/v1/profiles';
 
 const StudentProfileCreate = () => {
   const [profile, setProfile] = useState({
@@ -60,7 +61,7 @@ const StudentProfileCreate = () => {
     if (coverPhoto) formData.append("coverPhoto", coverPhoto);
 
     try {
-      const response=await api.post(`/profiles`, formData, {
+      const response=await axios.post(`${API_BASE_URL}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -83,6 +84,11 @@ const StudentProfileCreate = () => {
   };
 
   return (
+     <div className="layout"> 
+    <Sidebar />
+
+    
+      <main className="page-content">
     <div className="form-wrapper">
       <form onSubmit={handleSubmit}>
         <div className="cover-photo-container">
@@ -161,26 +167,7 @@ const StudentProfileCreate = () => {
           placeholder="Téléphone"
         />
 
-        {/* Uploads */}
-        {/*
-        <label>Upload CV</label>
-        <input
-          type="file"
-          name="cv"
-          accept=".pdf"
-          onChange={handleFileChange}
-          required
-        />
-
-        <label>Upload Lettre de Motivation</label>
-        <input
-          type="file"
-          name="letter"
-          accept=".pdf"
-          onChange={handleFileChange}
-          required
-        />
-        */}
+      
  <div className="file-upload-section">
   <div className="file-upload-card">
     <label htmlFor="cvUpload">
@@ -230,6 +217,9 @@ const StudentProfileCreate = () => {
         </button>
       </form>
     </div>
+    </main>
+    </div>
+    
   );
 };
 

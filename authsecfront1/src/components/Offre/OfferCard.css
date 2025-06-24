@@ -1,172 +1,4 @@
 /*.offer-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #e5e5e5;
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  .offer-image {
-    margin-right: 20px; 
-  }
-  .offer-image img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-  
-  .offer-info {
-    flex-grow: 1;
-  }
-  
-  .offer-details {
-    margin-top: 16px;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .see-more {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 12px;
-  }
-  
-  .see-more:hover {
-    color: #0056b3;
-  }.favorite-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: white;
-  border: none;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.favorite-icon:hover {
-  transform: scale(1.1);
-}
-
-.favorite-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.favorite-icon.active svg {
-  fill: #000;
-  stroke: #000;
-}
-*/
-/*version 2*/
-/*
-.offer-card {
-  background-color: #e8e8e8;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 20px 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  font-family: Arial, sans-serif;
-}
-
-.offer-top-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.company-logo-container img.company-logo {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.offer-main-info {
-  flex: 1;
-  padding: 0 12px;
-}
-
-.offer-title {
-  font-weight: bold;
-  margin: 0;
-  font-size: 16px;
-}
-
-.offer-sector {
-  margin: 4px 0 0 0;
-  font-size: 14px;
-  color: #555;
-}
-
-.favorite-icon {
-  cursor: pointer;
-  font-size: 20px;
-  user-select: none;
-}
-
-.offer-description {
-  margin: 12px 0;
-  color: #333;
-  font-size: 14px;
-}
-
-.offer-details-row {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-}
-
-.offer-detail-box {
-  background: white;
-  border-radius: 6px;
-  padding: 10px;
-  text-align: center;
-  flex: 1;
-  margin-right: 10px;
-  font-size: 13px;
-  color: #444;
-}
-
-.offer-detail-box:last-child {
-  margin-right: 0;
-}
-
-.offer-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.apply-button {
-  background-color: white;
-  color: black;
-  border: none;
-  padding: 8px 18px;
-  font-size: 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-*/
-
-
-
-
-
-.offer-card {
   background: #ffffff;
   padding: 1.5rem;
   border-radius: 15px;
@@ -291,26 +123,16 @@
   color: #333;
 }
 
-/*.apply-btn {
-  background-color: #2a7fba;
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.2s;
-}*/
+
 
 .apply-btn:hover {
   background-color: #1a5f8b;
 }
-/* Ajoutez ces règles à votre fichier CSS existant */
+
 
 .apply-btn {
   background-color: #2a7fba;
-  /*background-color: #3fb7b7;*/
+ 
   color: white;
   border: none;
   padding: 0.8rem 1.5rem;
@@ -352,4 +174,361 @@
 
 .see-less-btn:hover {
   color: #1a5f8b;
+}
+
+
+
+
+
+
+.additional-details {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.additional-details h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.benefits-list, .skills-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #444;
+}
+
+.benefits-list li, .skills-list li {
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
+}
+.benefits-text, .skills-text {
+  margin: 0;
+  color: #444;
+  line-height: 1.4;
+}
+
+
+
+.additional-details {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.additional-details h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.details-text {
+  margin: 0;
+  color: #444;
+  line-height: 1.4;
+  white-space: pre-line; 
+}
+
+.details-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #444;
+}
+
+.details-list li {
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
+}
+*/
+/* Style moderne pour les cartes d'offres */
+/* Design Ultra-Moderne avec Glassmorphism et Effets Néon */
+.offer-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 2rem;
+  border-radius: 24px;
+  margin-bottom: 28px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.offer-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, 
+    rgba(49, 130, 206, 0.1) 0%, 
+    rgba(56, 161, 105, 0.05) 50%, 
+    transparent 70%);
+  z-index: -1;
+  transform: rotate(30deg);
+  transition: all 0.6s ease;
+}
+
+.offer-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset,
+    0 0 20px rgba(49, 130, 206, 0.15);
+}
+
+.offer-card:hover::before {
+  transform: rotate(45deg) scale(1.2);
+}
+
+.card-header {
+  display: flex;
+  gap: 1.8rem;
+  align-items: flex-start;
+}
+
+.company-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.company-logo:hover {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.header-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.offer-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a202c;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #3182ce, #38a169);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.offer-sector {
+  margin: 0.6rem 0;
+  color: #4a5568;
+  font-size: 1rem;
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+}
+
+.offer-sector::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #3182ce, transparent);
+  border-radius: 2px;
+}
+
+.offer-description {
+  margin: 1rem 0 0 0;
+  color: #4a5568;
+  line-height: 1.6;
+  font-size: 1rem;
+  position: relative;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.detail-item {
+  background: rgba(247, 250, 252, 0.7);
+  padding: 1.2rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid;
+  border-image: linear-gradient(to bottom, #3182ce, #38a169) 1;
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(49, 130, 206, 0.1);
+}
+
+.apply-btn {
+  background: linear-gradient(135deg, #3182ce, #38a169);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.4s;
+  box-shadow: 
+    0 4px 15px rgba(49, 130, 206, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.apply-btn::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  transform: rotate(30deg);
+  transition: all 0.6s ease;
+}
+
+.apply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(49, 130, 206, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+}
+
+.apply-btn:hover::before {
+  transform: rotate(45deg) translate(10px, 10px);
+}
+
+.additional-details {
+  margin: 2rem 0;
+  padding: 1.8rem;
+  background: rgba(247, 250, 252, 0.7);
+  border-radius: 16px;
+  border-left: 3px solid;
+  border-image: linear-gradient(to bottom, #38a169, #3182ce) 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.additional-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(56, 161, 105, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.additional-details h4 {
+  margin: 0 0 1.2rem 0;
+  color: #1a202c;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.additional-details h4::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #38a169, #3182ce);
+  margin-right: 0.8rem;
+  box-shadow: 0 0 8px rgba(56, 161, 105, 0.5);
+}
+
+/* Animation subtile au chargement */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.offer-card {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .offer-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .company-logo {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* Styles pour la modal */
+.ReactModal__Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ReactModal__Content {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+}
+
+/* Assurez-vous que la carte a un z-index inférieur */
+.offer-card {
+  z-index: 1;
+  position: relative;
 }

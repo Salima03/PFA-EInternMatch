@@ -86,7 +86,7 @@ export default ApplicationsList;*/
     <div className="layout">
       <Sidebar />
       <main className="page-content" style={styles.page}>
-        <h2 style={styles.title}>Candidatures pour l'offre #{offerId}</h2>
+        <h2 style={styles.title}>Candidatures pour l'offre {offerId}</h2>
         <table style={styles.table}>
           <thead>
             <tr>

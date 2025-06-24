@@ -388,21 +388,7 @@ const styles = {
     justifyContent: 'center',
     marginBottom: '20px'
   },
-  /* editableLogoContainer: {
-    width: '160px',
-    height: '160px',
-    borderRadius: '50%',
-    backgroundColor: '#f5f5f5',
-    position: 'relative',
-    cursor: 'pointer',
-    overflow: 'hidden',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    transition: 'transform 0.2s',
-    border: '5px solid #007b8f',
-    ':hover': {
-      transform: 'scale(1.02)'
-    }
-  },*/
+  
   editableLogo: {
     width: '100%',
     height: '100%',
@@ -591,15 +577,16 @@ const styles = {
   },
   description: {
     fontSize: '16px',
-    lineHeight: '1.7',
+    lineHeight: '1.4',
     color: '#333',
     margin: '20px 0 0',
     padding: '25px',
     borderTop: '1px solid #e0f2f1',
     width: '100%',
-    textAlign: 'center',
+    textAlign: 'left',
     backgroundColor: '#f9f9f9',
-    borderRadius: '8px'
+    borderRadius: '8px',
+    whiteSpace: 'pre-line'
   },
   actionButtons: {
     display: 'flex',

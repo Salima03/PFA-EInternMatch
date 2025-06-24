@@ -60,7 +60,7 @@ const AdminOffre = ({ handleLogout }) => {
                                                                                         Messages
                                                                                     </Nav.Link>
                         </Nav>
-                        <Button
+                       <Button
                             variant="light"
                             onClick={handleLogout}
                             className="ms-2 border rounded-pill px-3 py-2 text-dark shadow-sm"

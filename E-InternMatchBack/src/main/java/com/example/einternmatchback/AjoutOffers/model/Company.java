@@ -24,6 +24,7 @@ public class Company {
     private String name;
 
     private String sector;
+    @Column(length = 2000) // ou une autre valeur appropriée
     private String description;
     private String website;
     private String picture;

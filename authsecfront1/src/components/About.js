@@ -1,339 +1,508 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../layout/Sidebar';
 import { FaBullseye, FaChartLine, FaHandshake, FaUsers, FaEnvelope, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { MdDiversity3 } from 'react-icons/md';
 import { IoMdRocket } from 'react-icons/io';
 
+// Importez vos images locales
+import assia from '../assets/assia.jpg';
+import salma from '../assets/salma.PNG';
+import salima from '../assets/salima.jpg';
+import hamouda from '../assets/hamouda.jpg';
+
 const About = () => {
-  // Données de l'équipe
+  const [copiedEmail, setCopiedEmail] = useState(null);
+
+  const copyToClipboard = (email) => {
+    navigator.clipboard.writeText(email);
+    setCopiedEmail(email);
+    setTimeout(() => setCopiedEmail(null), 2000);
+  };
+
   const teamMembers = [
-    {
-      name: 'Mohammed Admi',
-      role: 'Fullstack Developer',
-      photo: 'https://randomuser.me/api/portraits/men/32.jpg',
-      linkedin: '#',
-      github: '#'
+      {
+      name: 'Assia DERFOUFI',
+      role: 'Fullstack Developer/UX Designer',
+      photo: assia,
+      linkedin: 'https://www.linkedin.com/in/assia-derfoufi/',
+      github: 'https://github.com/assia-der',
+      email: 'derfoufi.assia@gmail.com'
     },
     {
-      name: 'Assia Derfoufi',
-      role: 'Fullstack Developer',
-      photo: 'https://randomuser.me/api/portraits/women/44.jpg',
-      linkedin: '#',
-      github: '#'
+      name: 'Mohammed Admi',
+      role: 'Fullstack Developer/ Database & System Design',
+      photo: hamouda,
+      linkedin: 'https://www.linkedin.com/in/mohammed-admi/',
+      github: 'https://github.com/AdmiMohamme',
+      email: 'Mohammed.admi23@ump.ac.ma'
     },
     {
       name: 'Salma Chtioui',
-      role: 'fullstack Developper',
-      photo: 'https://randomuser.me/api/portraits/men/75.jpg',
-      linkedin: '#',
-      github: '#'
+      role: 'Fullstack Developer/ Problem Solving',
+      photo: salma,
+      linkedin: 'https://www.linkedin.com/in/salma-chtioui',
+      github: 'https://github.com/salmachtioui12',
+      email: 'chtiouisalma790@gmail.com'
     },
-      {
+    {
       name: 'Salima Elqartit',
-      role: 'fullstack Developper',
-      photo: 'https://randomuser.me/api/portraits/men/75.jpg',
-      linkedin: '#',
-      github: '#'
+      role: 'Fullstack Developer/AI Integration & Plateform Config',
+      photo: salima,
+      linkedin: 'https://linkedin.com/in/salima-elqartit',
+      github: 'https://github.com/Salima03',
+      email: 'salma.elqartit23@ump.ac.ma'
     },
   ];
 
   return (
-    <div style={styles.appContainer}>
+    <div className="about-page">
       <Sidebar />
       
-      <div style={styles.mainContent}>
-        <div style={styles.heroSection}>
-          <h1 style={styles.heroTitle}>Notre Plateforme <span style={styles.highlight}>E-InternMatch</span></h1>
-          <p style={styles.heroSubtitle}>La solution innovante pour connecter talents et entreprises</p>
-        </div>
+      <main className="about-content">
+        {/* Hero Section */}
+        <section className="about-hero">
+          <div className="hero-container">
+            <h1>Notre Plateforme <span>E-InternMatch</span></h1>
+            <p>La solution innovante pour connecter talents et entreprises</p>
+          </div>
+        </section>
 
-        <div style={styles.contentContainer}>
-          {/* Section Présentation */}
-          <section style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <IoMdRocket style={styles.sectionIcon} />
-              <h2 style={styles.sectionTitle}>Qu'est-ce que E-InternMatch ?</h2>
+        {/* Main Content */}
+        <div className="about-sections">
+          {/* Présentation */}
+          <section className="about-section">
+            <div className="section-header">
+              <IoMdRocket className="section-icon" />
+              <h2>Qu'est-ce que E-InternMatch ?</h2>
             </div>
-            <p style={styles.sectionText}>
+            <p>
               E-InternMatch révolutionne la recherche de stages en créant des connexions intelligentes entre étudiants 
               ambitieux et entreprises innovantes. Notre plateforme utilise des algorithmes avancés pour matcher 
               les compétences, aspirations et cultures d'entreprise.
             </p>
           </section>
 
-          {/* Section Avantages */}
-          <section style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <FaChartLine style={styles.sectionIcon} />
-              <h2 style={styles.sectionTitle}>Nos Avantages Clés</h2>
+          {/* Avantages */}
+          <section className="about-section">
+            <div className="section-header">
+              <FaChartLine className="section-icon" />
+              <h2>Nos Avantages Clés</h2>
             </div>
-            <div style={styles.featuresGrid}>
-              <div style={styles.featureCard}>
-                <div style={styles.featureIconBox}>
-                  <MdDiversity3 style={styles.featureIcon} />
+            <div className="features-grid">
+              <div className="feature-card">
+                <div className="feature-icon">
+                  <MdDiversity3 />
                 </div>
-                <h3 style={styles.featureTitle}>Diversité</h3>
-                <p style={styles.featureText}>
+                <h3>Diversité</h3>
+                <p>
                   Accès à un réseau diversifié d'entreprises et de talents à travers différents secteurs
                 </p>
               </div>
               
-              <div style={styles.featureCard}>
-                <div style={styles.featureIconBox}>
-                  <FaHandshake style={styles.featureIcon} />
+              <div className="feature-card">
+                <div className="feature-icon">
+                  <FaHandshake />
                 </div>
-                <h3 style={styles.featureTitle}>Efficacité</h3>
-                <p style={styles.featureText}>
+                <h3>Efficacité</h3>
+                <p>
                   Processus de recrutement simplifié avec des outils dédiés pour chaque partie
                 </p>
               </div>
               
-              <div style={styles.featureCard}>
-                <div style={styles.featureIconBox}>
-                  <FaBullseye style={styles.featureIcon} />
+              <div className="feature-card">
+                <div className="feature-icon">
+                  <FaBullseye />
                 </div>
-                <h3 style={styles.featureTitle}>Précision</h3>
-                <p style={styles.featureText}>
+                <h3>Précision</h3>
+                <p>
                   Matching algorithmique pour des propositions pertinentes des deux côtés
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Section Objectifs */}
-          <section style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <FaBullseye style={styles.sectionIcon} />
-              <h2 style={styles.sectionTitle}>Nos Objectifs</h2>
+          {/* Objectifs */}
+          <section className="about-section">
+            <div className="section-header">
+              <FaBullseye className="section-icon" />
+              <h2>Nos Objectifs</h2>
             </div>
-            <ul style={styles.goalsList}>
-              <li style={styles.goalItem}>
-                <span style={styles.goalHighlight}>Réduire le fossé</span> entre le monde académique et professionnel
+            <ul className="goals-list">
+              <li>
+                <span>Réduire le fossé</span> entre le monde académique et professionnel
               </li>
-              <li style={styles.goalItem}>
-                <span style={styles.goalHighlight}>Faciliter l'accès</span> à des opportunités de stage qualitatives
+              <li>
+                <span>Faciliter l'accès</span> à des opportunités de stage qualitatives
               </li>
-              <li style={styles.goalItem}>
-                <span style={styles.goalHighlight}>Optimiser le temps</span> de recrutement pour les entreprises
+              <li>
+                <span>Optimiser le temps</span> de recrutement pour les entreprises
               </li>
-              <li style={styles.goalItem}>
-                <span style={styles.goalHighlight}>Créer des relations</span> durables entre talents et employeurs
+              <li>
+                <span>Créer des relations</span> durables entre talents et employeurs
               </li>
             </ul>
           </section>
 
-          {/* Section Équipe */}
-          <section style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <FaUsers style={styles.sectionIcon} />
-              <h2 style={styles.sectionTitle}>Notre Équipe</h2>
+          {/* Équipe */}
+          <section className="about-section">
+            <div className="section-header">
+              <FaUsers className="section-icon" />
+              <h2>Notre Équipe</h2>
             </div>
-            <p style={styles.sectionText}>
+            <p>
               Une équipe passionnée réunissant expertise technique et connaissance du marché du travail
             </p>
             
-            <div style={styles.teamGrid}>
+            <div className="team-grid">
               {teamMembers.map((member, index) => (
-                <div key={index} style={styles.teamCard}>
-                  <img src={member.photo} alt={member.name} style={styles.teamPhoto} />
-                  <h3 style={styles.teamName}>{member.name}</h3>
-                  <p style={styles.teamRole}>{member.role}</p>
-                  <div style={styles.socialLinks}>
-                    <a href={member.linkedin} style={styles.socialLink}>
+                <div key={index} className="team-card">
+                  <img src={member.photo} alt={member.name} className="team-photo" />
+                  <h3>{member.name}</h3>
+                  <p className="role">{member.role}</p>
+                  <div className="social-links">
+                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
                       <FaLinkedin />
                     </a>
-                    <a href={member.github} style={styles.socialLink}>
+                    <a href={member.github} target="_blank" rel="noopener noreferrer">
                       <FaGithub />
                     </a>
-                    <a href={`mailto:${member.email}`} style={styles.socialLink}>
+                    <div 
+                      className="email-tooltip" 
+                      onClick={() => copyToClipboard(member.email)}
+                    >
                       <FaEnvelope />
-                    </a>
+                      <span className="tooltip">
+                        {copiedEmail === member.email ? 'Copié!' : member.email}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </section>
         </div>
-      </div>
+      </main>
+
+      {/* CSS */}
+      <style jsx>{`
+        /* Variables CSS */
+        :root {
+          --primary: #007b8f;
+          --primary-light: #c0e7eb;
+          --secondary: #e0f2f1;
+          --accent: #ffd166;
+          --dark: #1e1e1e;
+          --light: #ffffff;
+          --gray: #6c757d;
+          --light-gray: #f8f9fa;
+          --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          --transition: all 0.3s ease;
+        }
+
+        /* Base Styles */
+        .about-page {
+          display: flex;
+          min-height: 100vh;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: var(--dark);
+          background-color: var(--light-gray);
+        }
+
+        .about-content {
+          flex: 1;
+          padding: 1rem;
+          margin-left: 0;
+          transition: var(--transition);
+        }
+
+        /* Hero Section */
+        .about-hero {
+          background: linear-gradient(135deg, var(--primary), #0099ad);
+          color: white;
+          padding: 2rem 1rem;
+          border-radius: 0 0 20px 20px;
+          margin-bottom: 2rem;
+          text-align: center;
+          box-shadow: var(--shadow);
+        }
+
+        .about-hero h1 {
+          font-size: 1.8rem;
+          margin-bottom: 1rem;
+          font-weight: 700;
+        }
+
+        .about-hero h1 span {
+          color: var(--accent);
+        }
+
+        .about-hero p {
+          font-size: 1.1rem;
+          opacity: 0.9;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        /* Sections */
+        .about-sections {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 1rem;
+        }
+
+        .about-section {
+          background: white;
+          border-radius: 10px;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          box-shadow: var(--shadow);
+          transition: var(--transition);
+        }
+
+        .about-section:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          color: var(--primary);
+        }
+
+        .section-icon {
+          font-size: 1.8rem;
+          margin-right: 1rem;
+        }
+
+        .about-section h2 {
+          font-size: 1.5rem;
+          margin: 0;
+          color: var(--primary);
+        }
+
+        .about-section p {
+          color: var(--gray);
+          margin-bottom: 1rem;
+        }
+
+        /* Features Grid */
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+          margin-top: 2rem;
+        }
+
+        .feature-card {
+          padding: 1.5rem;
+          border-radius: 8px;
+          background: var(--light-gray);
+          transition: var(--transition);
+        }
+
+        .feature-card:hover {
+          transform: translateY(-5px);
+          background: white;
+          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+          width: 50px;
+          height: 50px;
+          background: var(--primary);
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 1rem;
+          font-size: 1.2rem;
+        }
+
+        .feature-card h3 {
+          font-size: 1.2rem;
+          margin-bottom: 0.5rem;
+          color: var(--dark);
+        }
+
+        /* Goals List */
+        .goals-list {
+          list-style: none;
+          padding: 0;
+        }
+
+        .goals-list li {
+          padding: 0.8rem 0;
+          border-bottom: 1px solid var(--primary-light);
+          position: relative;
+          padding-left: 2rem;
+        }
+
+        .goals-list li:before {
+          content: '•';
+          color: var(--primary);
+          font-size: 1.5rem;
+          position: absolute;
+          left: 0;
+          top: 0.5rem;
+        }
+
+        .goals-list span {
+          font-weight: 600;
+          color: var(--primary);
+        }
+
+        /* Team Grid */
+        .team-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          margin-top: 2rem;
+        }
+
+        .team-card {
+          text-align: center;
+          padding: 1.5rem;
+          background: var(--light-gray);
+          border-radius: 10px;
+          transition: var(--transition);
+        }
+
+        .team-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-photo {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 4px solid var(--primary-light);
+          margin-bottom: 1rem;
+          transition: var(--transition);
+        }
+
+        .team-card:hover .team-photo {
+          border-color: var(--primary);
+          transform: scale(1.05);
+        }
+
+        .team-card h3 {
+          font-size: 1.2rem;
+          margin-bottom: 0.3rem;
+        }
+
+        .role {
+          color: var(--gray);
+          margin-bottom: 1rem;
+        }
+
+        .social-links {
+          display: flex;
+          justify-content: center;
+          gap: 1.5rem;
+        }
+
+        .social-links a, .email-tooltip {
+          color: var(--gray);
+          font-size: 1.3rem;
+          transition: var(--transition);
+          cursor: pointer;
+        }
+
+        .social-links a:hover, .email-tooltip:hover {
+          color: var(--primary);
+          transform: translateY(-3px);
+        }
+
+        .email-tooltip {
+          position: relative;
+        }
+
+        .tooltip {
+          visibility: hidden;
+          width: 120px;
+          background: var(--primary);
+          color: white;
+          text-align: center;
+          border-radius: 6px;
+          padding: 5px;
+          position: absolute;
+          z-index: 1;
+          bottom: 125%;
+          left: 50%;
+          transform: translateX(-50%);
+          opacity: 0;
+          transition: opacity 0.3s;
+          font-size: 0.8rem;
+        }
+
+        .email-tooltip:hover .tooltip {
+          visibility: visible;
+          opacity: 1;
+        }
+
+        /* Media Queries */
+        @media (min-width: 576px) {
+          .about-content {
+            padding: 1.5rem;
+          }
+          
+          .team-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 768px) {
+          .about-content {
+            margin-left: 250px;
+            padding: 2rem;
+          }
+          
+          .about-hero {
+            padding: 3rem 2rem;
+            border-radius: 0 0 30px 30px;
+          }
+          
+          .about-hero h1 {
+            font-size: 2.2rem;
+          }
+          
+          .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          
+          .team-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        @media (min-width: 992px) {
+          .features-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+          
+          .about-section {
+            padding: 2rem;
+          }
+          
+          .about-hero h1 {
+            font-size: 2.5rem;
+          }
+        }
+
+        @media (min-width: 1200px) {
+          .about-content {
+            padding: 3rem;
+          }
+        }
+      `}</style>
     </div>
   );
-};
-
-// Styles modernes avec CSS-in-JS
-const styles = {
-  appContainer: {
-    display: 'flex',
-    minHeight: '100vh',
-    backgroundColor: '#f8fafc',
-  },
-  mainContent: {
-    flex: 1,
-    padding: '2rem',
-    marginLeft: '240px', // Correspond à la largeur de votre sidebar
-  },
-  heroSection: {
-    textAlign: 'center',
-    marginBottom: '3rem',
-    padding: '2rem',
-    background: 'linear-gradient(135deg, #007b8f 0%, #00b4d8 100%)',
-    borderRadius: '12px',
-    color: 'white',
-  },
-  heroTitle: {
-    fontSize: '2.5rem',
-    fontWeight: '700',
-    marginBottom: '1rem',
-  },
-  highlight: {
-    color: '#ffd700',
-  },
-  heroSubtitle: {
-    fontSize: '1.25rem',
-    opacity: '0.9',
-  },
-  contentContainer: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-  },
-  section: {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: '2rem',
-    marginBottom: '2rem',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-  },
-  sectionHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: '1.5rem',
-    color: '#007b8f',
-  },
-  sectionIcon: {
-    fontSize: '1.5rem',
-    marginRight: '0.75rem',
-  },
-  sectionTitle: {
-    fontSize: '1.75rem',
-    fontWeight: '600',
-  },
-  sectionText: {
-    fontSize: '1.1rem',
-    lineHeight: '1.6',
-    color: '#4a5568',
-  },
-  featuresGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '1.5rem',
-    marginTop: '2rem',
-  },
-  featureCard: {
-    padding: '1.5rem',
-    borderRadius: '8px',
-    backgroundColor: '#f8fafc',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    ':hover': {
-      transform: 'translateY(-5px)',
-      boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1)',
-    },
-  },
-  featureIconBox: {
-    width: '50px',
-    height: '50px',
-    borderRadius: '50%',
-    backgroundColor: '#007b8f',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '1rem',
-    color: 'white',
-  },
-  featureIcon: {
-    fontSize: '1.25rem',
-  },
-  featureTitle: {
-    fontSize: '1.25rem',
-    fontWeight: '600',
-    marginBottom: '0.75rem',
-    color: '#2d3748',
-  },
-  featureText: {
-    fontSize: '1rem',
-    lineHeight: '1.5',
-    color: '#4a5568',
-  },
-  goalsList: {
-    listStyle: 'none',
-    paddingLeft: '0',
-  },
-  goalItem: {
-    fontSize: '1.1rem',
-    padding: '0.75rem 0',
-    borderBottom: '1px solid #e2e8f0',
-    display: 'flex',
-    alignItems: 'center',
-    ':before': {
-      content: '"•"',
-      color: '#007b8f',
-      fontWeight: 'bold',
-      display: 'inline-block',
-      width: '1em',
-      marginLeft: '-1em',
-    },
-  },
-  goalHighlight: {
-    fontWeight: '600',
-    color: '#007b8f',
-    marginRight: '0.5rem',
-  },
-  teamGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '2rem',
-    marginTop: '2rem',
-  },
-  teamCard: {
-    textAlign: 'center',
-    padding: '1.5rem',
-    backgroundColor: '#f8fafc',
-    borderRadius: '8px',
-    transition: 'transform 0.3s ease',
-    ':hover': {
-      transform: 'translateY(-5px)',
-    },
-  },
-  teamPhoto: {
-    width: '120px',
-    height: '120px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    marginBottom: '1rem',
-    border: '4px solid #007b8f',
-  },
-  teamName: {
-    fontSize: '1.25rem',
-    fontWeight: '600',
-    marginBottom: '0.25rem',
-    color: '#2d3748',
-  },
-  teamRole: {
-    fontSize: '1rem',
-    color: '#4a5568',
-    marginBottom: '1rem',
-  },
-  socialLinks: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '1rem',
-  },
-  socialLink: {
-    color: '#007b8f',
-    fontSize: '1.25rem',
-    transition: 'color 0.3s ease',
-    ':hover': {
-      color: '#00b4d8',
-    },
-  },
 };
 
 export default About;
