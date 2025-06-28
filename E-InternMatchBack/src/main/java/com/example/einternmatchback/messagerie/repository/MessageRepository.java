@@ -47,5 +47,26 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
                               @Param("userId") Integer userId,
                               @Param("content") String content);
 
+    @Query("""
+        SELECT m FROM Message m
+        WHERE m.completelyDeleted = false 
+        AND ((m.senderId = :user1 AND m.receiverId = :user2) 
+             OR (m.senderId = :user2 AND m.receiverId = :user1))
+        AND NOT EXISTS (
+            SELECT 1 FROM BlockedUser b 
+            WHERE (b.blockerId = :user1 AND b.blockedId = m.senderId)
+            OR (b.blockerId = :user2 AND b.blockedId = m.senderId)
+        )
+        ORDER BY m.timestamp
+    """)
+    List<Message> findBySenderIdAndReceiverIdOrReceiverIdAndSenderIdOrderByTimestamp(
+            @Param("user1") Integer user1,
+            @Param("user2") Integer user2);
 
+
+    // Ajoutez cette méthode
+    @Modifying
+    @Transactional
+    @Query("UPDATE Message m SET m.read = true WHERE m.senderId = :senderId AND m.receiverId = :receiverId AND m.read = false")
+    void markMessagesAsRead(@Param("senderId") Integer senderId, @Param("receiverId") Integer receiverId);
 }

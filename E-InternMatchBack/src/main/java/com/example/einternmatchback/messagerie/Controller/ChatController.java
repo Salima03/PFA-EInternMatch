@@ -13,7 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.einternmatchback.messagerie.entity.Notification;
-
+import com.example.einternmatchback.messagerie.repository.BlockedUserRepository;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
@@ -33,7 +33,8 @@ public class ChatController {
 
     @Autowired
     private NotificationRepository notificationRepository;
-
+    @Autowired
+    private BlockedUserRepository blockedUserRepository;
     @MessageMapping("/chat/{receiverId}")
     public void processMessage(@DestinationVariable Integer receiverId,
                                @Payload Message message,
@@ -45,6 +46,14 @@ public class ChatController {
         String email = principal.getName();
         User sender = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + email));
+
+        // Vérifier les blocages dans les deux sens
+        boolean isBlockedByReceiver = blockedUserRepository.existsByBlockerIdAndBlockedId(receiverId, sender.getId());
+        boolean isBlockedBySender = blockedUserRepository.existsByBlockerIdAndBlockedId(sender.getId(), receiverId);
+
+        if (isBlockedByReceiver || isBlockedBySender) {
+            return;
+        }
 
         message.setSenderId(sender.getId());
         message.setReceiverId(receiverId);
@@ -128,5 +137,19 @@ public class ChatController {
 
         messagingTemplate.convertAndSend("/topic/messages/update/" + updatedMessage.getSenderId(), updatedMessage);
         messagingTemplate.convertAndSend("/topic/messages/update/" + updatedMessage.getReceiverId(), updatedMessage);
+    }
+
+    // Ajoutez cette méthode dans ChatController
+    @MessageMapping("/chat/{senderId}/mark-read/{receiverId}")
+    public void markMessagesAsRead(@DestinationVariable Integer senderId,
+                                   @DestinationVariable Integer receiverId) {
+        // Marquer tous les messages non lus comme lus
+        messageRepository.markMessagesAsRead(senderId, receiverId);
+
+        // Mettre à jour les notifications correspondantes
+        notificationRepository.markNotificationsAsRead(senderId, receiverId);
+
+        // Envoyer une mise à jour aux clients
+        messagingTemplate.convertAndSend("/topic/notifications/read/" + receiverId, senderId);
     }
 }

@@ -38,4 +38,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                                                     @Param("senderId") Integer senderId);
 
     Optional<Notification> findByMessageId(Long messageId);
+
+    // Ajoutez cette méthode
+    @Modifying
+    @Transactional
+    @Query("UPDATE Notification n SET n.isRead = true WHERE n.senderId = :senderId AND n.recipientId = :recipientId AND n.isRead = false")
+    void markNotificationsAsRead(@Param("senderId") Integer senderId, @Param("recipientId") Integer recipientId);
 }

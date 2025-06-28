@@ -2,17 +2,17 @@ package com.example.einternmatchback.messagerie.Controller;
 
 import com.example.einternmatchback.Authentification.user.User;
 import com.example.einternmatchback.Authentification.user.UserRepository;
-import com.example.einternmatchback.messagerie.entity.ConversationDTO;
-import com.example.einternmatchback.messagerie.entity.Message;
-import com.example.einternmatchback.messagerie.repository.MessageRepository;
-import com.example.einternmatchback.messagerie.repository.NotificationRepository;
+import com.example.einternmatchback.messagerie.entity.*;
+import com.example.einternmatchback.messagerie.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 import com.example.einternmatchback.messagerie.repository.NotificationRepository;
-import com.example.einternmatchback.messagerie.entity.Notification;
+
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +32,10 @@ public class MessageRestController {
     private UserRepository userRepository;
     @Autowired
     private NotificationRepository notificationRepository;
-
+    @Autowired
+    private BlockedUserRepository blockedUserRepository;
+    @Autowired
+    private ReportRepository reportRepository;
     @PostMapping
     public Message sendMessage(@RequestBody Message message) {
         if (message.isCompletelyDeleted()) {
@@ -151,5 +154,102 @@ public class MessageRestController {
             throw new IllegalArgumentException("User ID is required");
         }
         notificationRepository.markAllAsRead(userId);
+    }
+
+
+
+
+    @PostMapping("/block")
+    public ResponseEntity<?> blockUser(@RequestBody Map<String, Integer> request) {
+        Integer blockerId = request.get("blockerId");
+        Integer blockedId = request.get("blockedId");
+
+        if (blockerId == null || blockedId == null) {
+            return ResponseEntity.badRequest().body("Les IDs sont requis");
+        }
+
+        if (blockedUserRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId)) {
+            return ResponseEntity.ok().body("L'utilisateur est déjà bloqué");
+        }
+
+        BlockedUser blockedUser = new BlockedUser();
+        blockedUser.setBlockerId(blockerId);
+        blockedUser.setBlockedId(blockedId);
+        blockedUserRepository.save(blockedUser);
+
+        return ResponseEntity.ok().body("Utilisateur bloqué avec succès");
+    }
+
+    @PostMapping("/unblock")
+    public ResponseEntity<?> unblockUser(@RequestBody Map<String, Integer> request) {
+        Integer blockerId = request.get("blockerId");
+        Integer blockedId = request.get("blockedId");
+
+        if (blockerId == null || blockedId == null) {
+            return ResponseEntity.badRequest().body("Les IDs sont requis");
+        }
+
+        // Vérification explicite avant suppression
+        if (!blockedUserRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId)) {
+            return ResponseEntity.ok().body("Cet utilisateur n'était pas bloqué");
+        }
+
+        // Suppression avec retour du nombre d'entités supprimées
+        int deletedCount = blockedUserRepository.deleteByBlockerIdAndBlockedId(blockerId, blockedId);
+
+        if (deletedCount == 0) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Échec de la suppression du blocage");
+        }
+
+        return ResponseEntity.ok().body("Utilisateur débloqué avec succès");
+    }
+
+    @GetMapping("/blocked-users/{userId}")
+    public List<Integer> getBlockedUsers(@PathVariable Integer userId) {
+        return blockedUserRepository.findBlockedUserIdsByBlockerId(userId);
+    }
+
+    @GetMapping("/is-blocked")
+    public boolean isUserBlocked(@RequestParam Integer blockerId,
+                                 @RequestParam Integer blockedId) {
+        return blockedUserRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId);
+    }
+
+    // Dans votre MessageRestController.java - méthode reportMessage
+    @PostMapping("/{messageId}/report")
+    public ResponseEntity<?> reportMessage(@PathVariable Long messageId,
+                                           @RequestBody Map<String, String> request,
+                                           Principal principal) {
+        try {
+            String email = principal.getName();
+            User reporter = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+            Message message = messageRepository.findById(messageId)
+                    .orElseThrow(() -> new RuntimeException("Message non trouvé"));
+
+            // Vérifier si l'utilisateur a déjà signalé ce message
+            if (reportRepository.existsByReporterIdAndMessageId(reporter.getId(), messageId)) {
+                return ResponseEntity.badRequest().body("Vous avez déjà signalé ce message");
+            }
+
+            // Vérifier que la raison est fournie
+            String reason = request.get("reason");
+            if (reason == null || reason.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("La raison du signalement est requise");
+            }
+
+            Report report = new Report();
+            report.setType(Report.ReportType.MESSAGE);
+            report.setMessageId(messageId);
+            report.setReportedUserId(message.getSenderId());
+            report.setReporterId(reporter.getId());
+            report.setReason(reason);
+
+            return ResponseEntity.ok(reportRepository.save(report));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
