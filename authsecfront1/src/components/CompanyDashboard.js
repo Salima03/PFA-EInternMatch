@@ -289,7 +289,7 @@ const CompanyDashboard = () => {
                         innerRadius={40}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({percent }) => `${(percent * 100).toFixed(0)}%`}
                         paddingAngle={2}
                     >
                         {statusData.map((entry, index) => (
@@ -315,7 +315,7 @@ const CompanyDashboard = () => {
                         innerRadius={40}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({percent }) => `${(percent * 100).toFixed(0)}%`}
                         paddingAngle={2}
                     >
                         {offerTypeData.map((entry, index) => (

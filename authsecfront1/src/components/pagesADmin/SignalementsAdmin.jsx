@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 import {
     FiAlertTriangle, FiCheck, FiX, FiMessageSquare,
-    FiUser, FiRefreshCw
+    FiUser, FiRefreshCw, FiFilter, FiXCircle, FiCopy
 } from 'react-icons/fi';
 
 const SignalementsAdmin = () => {
@@ -20,8 +20,10 @@ const SignalementsAdmin = () => {
     const [filters, setFilters] = useState({
         type: 'all',
         handled: 'all',
-        search: ''
+        search: '',
+        sortDate: 'desc'
     });
+    const [showFilters, setShowFilters] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,6 +67,14 @@ const SignalementsAdmin = () => {
         }
     };
 
+    // Copier l'email
+    const copyEmail = (email) => {
+        if (!email) return;
+        navigator.clipboard.writeText(email);
+        setSuccessMessage('Email copié dans le presse-papier');
+        setTimeout(() => setSuccessMessage(''), 2000);
+    };
+
     // Fonctions utilitaires
     const getReportTypeBadge = (type) => {
         return type === 'USER' ? (
@@ -100,6 +110,21 @@ const SignalementsAdmin = () => {
         });
     };
 
+    // Gestion des filtres
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({ ...prev, [name]: value }));
+    };
+
+    const resetFilters = () => {
+        setFilters({
+            type: 'all',
+            handled: 'all',
+            search: '',
+            sortDate: 'desc'
+        });
+    };
+
     // Effets
     useEffect(() => {
         fetchReports();
@@ -127,6 +152,13 @@ const SignalementsAdmin = () => {
                 (r.reporterEmail?.toLowerCase().includes(searchTerm))
             );
         }
+
+        // Tri par date
+        result.sort((a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return filters.sortDate === 'asc' ? dateA - dateB : dateB - dateA;
+        });
 
         setFilteredReports(result);
         setCurrentPage(1);
@@ -188,44 +220,145 @@ const SignalementsAdmin = () => {
                         </Button>
                     </div>
 
-                    {/* Filtres */}
-                    <div className="row g-3 mb-4">
-                        <div className="col-md-3">
-                            <Form.Group>
-                                <Form.Label>Type</Form.Label>
-                                <Form.Select
-                                    value={filters.type}
-                                    onChange={(e) => setFilters({...filters, type: e.target.value})}
-                                >
-                                    <option value="all">Tous les types</option>
-                                    <option value="user">Utilisateurs</option>
-                                    <option value="message">Messages</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-3">
-                            <Form.Group>
-                                <Form.Label>Statut</Form.Label>
-                                <Form.Select
-                                    value={filters.handled}
-                                    onChange={(e) => setFilters({...filters, handled: e.target.value})}
-                                >
-                                    <option value="all">Tous les statuts</option>
-                                    <option value="handled">Traités</option>
-                                    <option value="unhandled">Non traités</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-6">
-                            <Form.Group>
-                                <Form.Label>Recherche</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Rechercher par raison, email..."
-                                    value={filters.search}
-                                    onChange={(e) => setFilters({...filters, search: e.target.value})}
-                                />
-                            </Form.Group>
+                    {/* Section de filtres améliorée */}
+                    <div className="card shadow-sm mb-4">
+                        <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <h5 className="mb-0">
+                                    <FiFilter className="me-2" />
+                                    Filtres
+                                </h5>
+                                <div>
+                                    <Button
+                                        variant="outline-secondary"
+                                        size="sm"
+                                        className="me-2"
+                                        onClick={() => setShowFilters(!showFilters)}
+                                    >
+                                        {showFilters ? 'Masquer' : 'Afficher'} les filtres
+                                    </Button>
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        onClick={resetFilters}
+                                        disabled={
+                                            filters.type === 'all' &&
+                                            filters.handled === 'all' &&
+                                            !filters.search &&
+                                            filters.sortDate === 'desc'
+                                        }
+                                    >
+                                        <FiXCircle className="me-1" />
+                                        Réinitialiser
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {showFilters && (
+                                <div className="row g-2">
+                                    <div className="col-md-3">
+                                        <Form.Group>
+                                            <Form.Label>Type</Form.Label>
+                                            <Form.Select
+                                                name="type"
+                                                value={filters.type}
+                                                onChange={handleFilterChange}
+                                            >
+                                                <option value="all">Tous les types</option>
+                                                <option value="user">Utilisateurs</option>
+                                                <option value="message">Messages</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </div>
+
+                                    <div className="col-md-3">
+                                        <Form.Group>
+                                            <Form.Label>Statut</Form.Label>
+                                            <Form.Select
+                                                name="handled"
+                                                value={filters.handled}
+                                                onChange={handleFilterChange}
+                                            >
+                                                <option value="all">Tous les statuts</option>
+                                                <option value="handled">Traités</option>
+                                                <option value="unhandled">Non traités</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </div>
+                                    <div className="col-md-2">
+                                        <Form.Group>
+                                            <Form.Label>Trier par date</Form.Label>
+                                            <Form.Select
+                                                name="sortDate"
+                                                value={filters.sortDate}
+                                                onChange={handleFilterChange}
+                                            >
+                                                <option value="desc">Plus récents</option>
+                                                <option value="asc">Plus anciens</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <Form.Group>
+                                            <Form.Label>Recherche</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="search"
+                                                placeholder="Rechercher par raison, email..."
+                                                value={filters.search}
+                                                onChange={handleFilterChange}
+                                            />
+                                        </Form.Group>
+                                    </div>
+
+
+                                </div>
+                            )}
+
+                            {/* Affichage des filtres actifs */}
+                            {(filters.type !== 'all' || filters.handled !== 'all' || filters.search || filters.sortDate !== 'desc') && (
+                                <div className="mt-3">
+                                    <small className="text-muted">Filtres actifs :</small>
+                                    <div className="d-flex flex-wrap gap-2 mt-1">
+                                        {filters.type !== 'all' && (
+                                            <Badge bg="primary" className="d-flex align-items-center">
+                                                Type: {filters.type === 'user' ? 'Utilisateurs' : 'Messages'}
+                                                <FiXCircle
+                                                    className="ms-1 cursor-pointer"
+                                                    onClick={() => setFilters({...filters, type: 'all'})}
+                                                />
+                                            </Badge>
+                                        )}
+                                        {filters.handled !== 'all' && (
+                                            <Badge bg="primary" className="d-flex align-items-center">
+                                                Statut: {filters.handled === 'handled' ? 'Traités' : 'Non traités'}
+                                                <FiXCircle
+                                                    className="ms-1 cursor-pointer"
+                                                    onClick={() => setFilters({...filters, handled: 'all'})}
+                                                />
+                                            </Badge>
+                                        )}
+                                        {filters.search && (
+                                            <Badge bg="primary" className="d-flex align-items-center">
+                                                Recherche: {filters.search}
+                                                <FiXCircle
+                                                    className="ms-1 cursor-pointer"
+                                                    onClick={() => setFilters({...filters, search: ''})}
+                                                />
+                                            </Badge>
+                                        )}
+                                        {filters.sortDate !== 'desc' && (
+                                            <Badge bg="primary" className="d-flex align-items-center">
+                                                Tri: {filters.sortDate === 'asc' ? 'Anciens' : 'Récents'}
+                                                <FiXCircle
+                                                    className="ms-1 cursor-pointer"
+                                                    onClick={() => setFilters({...filters, sortDate: 'desc'})}
+                                                />
+                                            </Badge>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -253,11 +386,40 @@ const SignalementsAdmin = () => {
                                                 {report.reason}
                                             </div>
                                         </td>
-                                        <td>{report.reporterEmail || 'Anonyme'}</td>
                                         <td>
-                                            {report.type === 'USER'
-                                                ? report.reportedUserEmail
-                                                : report.messageAuthorEmail || 'Message'}
+                                            {report.reporterEmail ? (
+                                                <div className="d-flex align-items-center">
+                                                    {report.reporterEmail}
+                                                    <FiCopy
+                                                        className="ms-2 cursor-pointer"
+                                                        onClick={() => copyEmail(report.reporterEmail)}
+                                                        size={14}
+                                                    />
+                                                </div>
+                                            ) : 'Anonyme'}
+                                        </td>
+                                        <td>
+                                            {report.type === 'USER' ? (
+                                                report.reportedUserEmail ? (
+                                                    <div className="d-flex align-items-center">
+                                                        {report.reportedUserEmail}
+                                                        <FiCopy
+                                                            className="ms-2 cursor-pointer"
+                                                            onClick={() => copyEmail(report.reportedUserEmail)}
+                                                            size={14}
+                                                        />
+                                                    </div>
+                                                ) : 'Utilisateur'
+                                            ) : report.messageAuthorEmail ? (
+                                                <div className="d-flex align-items-center">
+                                                    {report.messageAuthorEmail}
+                                                    <FiCopy
+                                                        className="ms-2 cursor-pointer"
+                                                        onClick={() => copyEmail(report.messageAuthorEmail)}
+                                                        size={14}
+                                                    />
+                                                </div>
+                                            ) : 'Message'}
                                         </td>
                                         <td>{formatDate(report.createdAt)}</td>
                                         <td>{getStatusBadge(report.handled)}</td>
@@ -290,6 +452,17 @@ const SignalementsAdmin = () => {
                                 <tr>
                                     <td colSpan="7" className="text-center py-4 text-muted">
                                         Aucun signalement trouvé
+                                        {(filters.type !== 'all' || filters.handled !== 'all' || filters.search) && (
+                                            <div className="mt-2">
+                                                <Button
+                                                    variant="outline-primary"
+                                                    size="sm"
+                                                    onClick={resetFilters}
+                                                >
+                                                    Réinitialiser les filtres
+                                                </Button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             )}
@@ -349,14 +522,43 @@ const SignalementsAdmin = () => {
                             <div className="row mb-3">
                                 <div className="col-md-6">
                                     <h6 className="text-muted">Signalé par</h6>
-                                    <p>{selectedReport.reporterEmail || 'Anonyme'}</p>
+                                    <p>
+                                        {selectedReport.reporterEmail ? (
+                                            <div className="d-flex align-items-center">
+                                                {selectedReport.reporterEmail}
+                                                <FiCopy
+                                                    className="ms-2 cursor-pointer"
+                                                    onClick={() => copyEmail(selectedReport.reporterEmail)}
+                                                    size={14}
+                                                />
+                                            </div>
+                                        ) : 'Anonyme'}
+                                    </p>
                                 </div>
                                 <div className="col-md-6">
                                     <h6 className="text-muted">Signalé</h6>
                                     <p>
-                                        {selectedReport.type === 'USER'
-                                            ? selectedReport.reportedUserEmail
-                                            : selectedReport.messageAuthorEmail || 'Message'}
+                                        {selectedReport.type === 'USER' ? (
+                                            selectedReport.reportedUserEmail ? (
+                                                <div className="d-flex align-items-center">
+                                                    {selectedReport.reportedUserEmail}
+                                                    <FiCopy
+                                                        className="ms-2 cursor-pointer"
+                                                        onClick={() => copyEmail(selectedReport.reportedUserEmail)}
+                                                        size={14}
+                                                    />
+                                                </div>
+                                            ) : 'Utilisateur'
+                                        ) : selectedReport.messageAuthorEmail ? (
+                                            <div className="d-flex align-items-center">
+                                                {selectedReport.messageAuthorEmail}
+                                                <FiCopy
+                                                    className="ms-2 cursor-pointer"
+                                                    onClick={() => copyEmail(selectedReport.messageAuthorEmail)}
+                                                    size={14}
+                                                />
+                                            </div>
+                                        ) : 'Message'}
                                     </p>
                                 </div>
                             </div>

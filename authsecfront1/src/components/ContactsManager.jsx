@@ -4,7 +4,7 @@ import {
   Badge, Button, Card, Table,
   Form, Modal, Alert, Spinner, Pagination
 } from 'react-bootstrap';
-import { FiMail, FiTrash2, FiRefreshCw } from 'react-icons/fi';
+import { FiMail, FiTrash2, FiRefreshCw, FiFilter, FiXCircle, FiCheckCircle } from 'react-icons/fi';
 
 const ContactsManager = () => {
   // États
@@ -14,10 +14,16 @@ const ContactsManager = () => {
   const [error, setError] = useState(null);
   const [selectedContact, setSelectedContact] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const contactsPerPage = 10;
+
+  // Filtres
+  const [filters, setFilters] = useState({
+    searchTerm: '',
+    sortDate: 'desc'
+  });
 
   const token = localStorage.getItem('accessToken');
 
@@ -29,7 +35,6 @@ const ContactsManager = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setContacts(response.data);
-      setFilteredContacts(response.data);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur lors du chargement des contacts');
@@ -42,12 +47,13 @@ const ContactsManager = () => {
     fetchContacts();
   }, []);
 
-  // Filtrer les contacts
+  // Appliquer les filtres
   useEffect(() => {
     let result = [...contacts];
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    // Filtre par terme de recherche
+    if (filters.searchTerm) {
+      const term = filters.searchTerm.toLowerCase();
       result = result.filter(contact =>
           contact.fullName.toLowerCase().includes(term) ||
           contact.email.toLowerCase().includes(term) ||
@@ -55,9 +61,30 @@ const ContactsManager = () => {
       );
     }
 
+    // Tri par date
+    result.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return filters.sortDate === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+
     setFilteredContacts(result);
     setCurrentPage(1);
-  }, [searchTerm, contacts]);
+  }, [contacts, filters]);
+
+  // Gestion des changements de filtre
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Réinitialiser les filtres
+  const resetFilters = () => {
+    setFilters({
+      searchTerm: '',
+      sortDate: 'desc'
+    });
+  };
 
   // Pagination
   const indexOfLastContact = currentPage * contactsPerPage;
@@ -143,18 +170,91 @@ const ContactsManager = () => {
               </Button>
             </div>
 
-            {/* Barre de recherche */}
-            <div className="row mb-4">
-              <div className="col-md-6">
-                <Form.Group>
-                  <Form.Label>Rechercher</Form.Label>
-                  <Form.Control
-                      type="text"
-                      placeholder="Rechercher par nom, email ou message..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </Form.Group>
+            {/* Barre de filtres */}
+            <div className="card shadow-sm mb-4">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="mb-0">
+                    <FiFilter className="me-2" />
+                    Filtres
+                  </h5>
+                  <div>
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => setShowFilters(!showFilters)}
+                    >
+                      {showFilters ? 'Masquer' : 'Afficher'} les filtres
+                    </Button>
+                    <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={resetFilters}
+                        disabled={!filters.searchTerm && filters.sortDate === 'desc'}
+                    >
+                      <FiXCircle className="me-1" />
+                      Réinitialiser
+                    </Button>
+                  </div>
+                </div>
+
+                {showFilters && (
+                    <div className="row g-2">
+                      <div className="col-md-6">
+                        <Form.Group>
+                          <Form.Label>Rechercher</Form.Label>
+                          <Form.Control
+                              type="text"
+                              placeholder="Rechercher par nom, email ou message..."
+                              name="searchTerm"
+                              value={filters.searchTerm}
+                              onChange={handleFilterChange}
+                          />
+                        </Form.Group>
+                      </div>
+                      <div className="col-md-3">
+                        <Form.Group>
+                          <Form.Label>Trier par date</Form.Label>
+                          <Form.Select
+                              name="sortDate"
+                              value={filters.sortDate}
+                              onChange={handleFilterChange}
+                          >
+                            <option value="desc">Plus récents</option>
+                            <option value="asc">Plus anciens</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </div>
+                    </div>
+                )}
+
+                {/* Affichage des filtres actifs */}
+                {(filters.searchTerm || filters.sortDate !== 'desc') && (
+                    <div className="mt-3">
+                      <small className="text-muted">Filtres actifs :</small>
+                      <div className="d-flex flex-wrap gap-2 mt-1">
+                        {filters.searchTerm && (
+                            <Badge bg="primary" className="d-flex align-items-center">
+                              Recherche: {filters.searchTerm}
+                              <FiXCircle
+                                  className="ms-1 cursor-pointer"
+                                  onClick={() => setFilters({...filters, searchTerm: ''})}
+                              />
+                            </Badge>
+                        )}
+                        {filters.sortDate !== 'desc' && (
+                            <Badge bg="primary" className="d-flex align-items-center">
+                              Tri: {filters.sortDate === 'asc' ? 'Anciens' : 'Récents'}
+                              <FiXCircle
+                                  className="ms-1 cursor-pointer"
+                                  onClick={() => setFilters({...filters, sortDate: 'desc'})}
+                              />
+                            </Badge>
+                        )}
+                      </div>
+                    </div>
+                )}
               </div>
             </div>
 
@@ -219,6 +319,17 @@ const ContactsManager = () => {
                     <tr>
                       <td colSpan="5" className="text-center py-4 text-muted">
                         Aucun contact trouvé
+                        {filters.searchTerm && (
+                            <div className="mt-2">
+                              <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  onClick={resetFilters}
+                              >
+                                Réinitialiser les filtres
+                              </Button>
+                            </div>
+                        )}
                       </td>
                     </tr>
                 )}

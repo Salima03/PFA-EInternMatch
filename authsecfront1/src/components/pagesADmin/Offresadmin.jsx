@@ -5,6 +5,11 @@ import {
   Tooltip, Legend, ResponsiveContainer, LineChart, Line
 } from 'recharts';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+  Funnel, FunnelFill, GeoAlt, Building,
+  Clock, ArrowDownUp, XCircle, Filter,
+  CheckCircle, Circle
+} from 'react-bootstrap-icons';
 
 const Offresadmin = () => {
   const [stats, setStats] = useState(null);
@@ -21,6 +26,7 @@ const Offresadmin = () => {
   const [uniqueTypes, setUniqueTypes] = useState([]);
   const [uniqueLocations, setUniqueLocations] = useState([]);
   const [uniqueCompanies, setUniqueCompanies] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -95,6 +101,16 @@ const Offresadmin = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  const resetFilters = () => {
+    setFilters({
+      type: '',
+      location: '',
+      active: '',
+      companyName: '',
+      sortDate: 'desc',
+    });
+  };
+
   const offersByDate = offers.reduce((acc, offer) => {
     const date = new Date(offer.createdAt).toLocaleDateString('fr-FR');
     acc[date] = (acc[date] || 0) + 1;
@@ -111,34 +127,34 @@ const Offresadmin = () => {
       title: "Statut des offres",
       description: "Répartition des offres selon leur statut",
       chart: (
-        <BarChart
-          data={[
-            { name: 'Actives', value: stats?.offerStats?.activeOffers || 0 },
-            { name: 'Inactives', value: stats?.offerStats?.inactiveOffers || 0 }
-          ]}
-          margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${value} offres`, 'Nombre']} />
-          <Legend />
-          <Bar dataKey="value" fill="#4e79a7" />
-        </BarChart>
+          <BarChart
+              data={[
+                { name: 'Actives', value: stats?.offerStats?.activeOffers || 0 },
+                { name: 'Inactives', value: stats?.offerStats?.inactiveOffers || 0 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip formatter={(value) => [`${value} offres`, 'Nombre']} />
+            <Legend />
+            <Bar dataKey="value" fill="#4e79a7" />
+          </BarChart>
       )
     },
     {
       title: "Évolution des offres dans le temps",
       description: "Nombre d'offres créées par jour",
       chart: (
-        <LineChart data={offersChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" angle={-45} textAnchor="end" interval={0} height={80} />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="count" stroke="#4e79a7" strokeWidth={2} dot={{ r: 3 }} />
-        </LineChart>
+          <LineChart data={offersChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" angle={-45} textAnchor="end" interval={0} height={80} />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="count" stroke="#4e79a7" strokeWidth={2} dot={{ r: 3 }} />
+          </LineChart>
       )
     }
   ];
@@ -147,120 +163,206 @@ const Offresadmin = () => {
   if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div className="container-fluid p-2 p-md-4 bg-light">
-      <div className="row g-3">
-        {charts.map((item, i) => (
-          <div className="col-12 col-lg-6" key={i}>
-            <div className="card shadow-sm mb-3">
-              <div className="card-body">
-                <h5>{item.title}</h5>
-                <p className="text-muted">{item.description}</p>
-                <ResponsiveContainer width="100%" height={300}>
-                  {item.chart}
-                </ResponsiveContainer>
+      <div className="container-fluid p-2 p-md-4 bg-light">
+        <div className="row g-3">
+          {charts.map((item, i) => (
+              <div className="col-12 col-lg-6" key={i}>
+                <div className="card shadow-sm mb-3">
+                  <div className="card-body">
+                    <h5>{item.title}</h5>
+                    <p className="text-muted">{item.description}</p>
+                    <ResponsiveContainer width="100%" height={300}>
+                      {item.chart}
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+          ))}
+        </div>
+
+        {/* Filtres améliorés */}
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="mb-0">
+                <Filter className="me-2" />
+                Filtres
+              </h5>
+              <div>
+                <button
+                    className="btn btn-sm btn-outline-secondary me-2"
+                    onClick={() => setShowFilters(!showFilters)}
+                >
+                  {showFilters ? 'Masquer' : 'Afficher'} les filtres
+                </button>
+                <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={resetFilters}
+                    disabled={!filters.type && !filters.location && !filters.active && !filters.companyName}
+                >
+                  <XCircle className="me-1" />
+                  Réinitialiser
+                </button>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Filtres */}
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <h5 className="mb-3">Filtres</h5>
-          <div className="row g-2">
-            <div className="col-md-3">
-              <select className="form-select" name="type" value={filters.type} onChange={handleFilterChange}>
-                <option value="">Tous les types</option>
-                {uniqueTypes.map((type, idx) => (
-                  <option key={idx} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-3">
-              <select className="form-select" name="location" value={filters.location} onChange={handleFilterChange}>
-                <option value="">Toutes les localisations</option>
-                {uniqueLocations.map((loc, idx) => (
-                  <option key={idx} value={loc}>{loc}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-2">
-              <select className="form-select" name="active" value={filters.active} onChange={handleFilterChange}>
-                <option value="">Tous les statuts</option>
-                <option value="true">Actives</option>
-                <option value="false">Inactives</option>
-              </select>
-            </div>
-            <div className="col-md-3">
-              <select className="form-select" name="companyName" value={filters.companyName} onChange={handleFilterChange}>
-                <option value="">Toutes les entreprises</option>
-                {uniqueCompanies.map((c, idx) => (
-                  <option key={idx} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-1">
-              <button
-                className="btn btn-outline-secondary w-100"
-                onClick={() => setFilters({ type: '', location: '', active: '', companyName: '', sortDate: filters.sortDate })}
-              >
-                ✖
-              </button>
-            </div>
-          </div>
+            {showFilters && (
+                <div className="row g-2">
+                  <div className="col-md-3">
+                    <div className="input-group">
+                  <span className="input-group-text">
+                    <FunnelFill />
+                  </span>
+                      <select className="form-select" name="type" value={filters.type} onChange={handleFilterChange}>
+                        <option value="">Tous les types</option>
+                        {uniqueTypes.map((type, idx) => (
+                            <option key={idx} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
-          <div className="mt-3">
-            <label className="form-label">Trier par date :</label>
-            <select className="form-select w-auto d-inline-block ms-2" name="sortDate" value={filters.sortDate} onChange={handleFilterChange}>
-              <option value="desc">+ Récentes</option>
-              <option value="asc">+ Anciennes</option>
-            </select>
+                  <div className="col-md-3">
+                    <div className="input-group">
+                  <span className="input-group-text">
+                    <GeoAlt />
+                  </span>
+                      <select className="form-select" name="location" value={filters.location} onChange={handleFilterChange}>
+                        <option value="">Toutes les localisations</option>
+                        {uniqueLocations.map((loc, idx) => (
+                            <option key={idx} value={loc}>{loc}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="col-md-2">
+                    <div className="input-group">
+                  <span className="input-group-text">
+                    {filters.active === 'true' ? <CheckCircle className="text-success" /> :
+                        filters.active === 'false' ? <Circle className="text-secondary" /> : <Funnel />}
+                  </span>
+                      <select className="form-select" name="active" value={filters.active} onChange={handleFilterChange}>
+                        <option value="">Tous les statuts</option>
+                        <option value="true">Actives</option>
+                        <option value="false">Inactives</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="col-md-3">
+                    <div className="input-group">
+                  <span className="input-group-text">
+                    <Building />
+                  </span>
+                      <select className="form-select" name="companyName" value={filters.companyName} onChange={handleFilterChange}>
+                        <option value="">Toutes les entreprises</option>
+                        {uniqueCompanies.map((c, idx) => (
+                            <option key={idx} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="col-md-1">
+                    <div className="input-group">
+                  <span className="input-group-text">
+                    <ArrowDownUp />
+                  </span>
+                      <select className="form-select" name="sortDate" value={filters.sortDate} onChange={handleFilterChange}>
+                        <option value="desc">Réc</option>
+                        <option value="asc">Anc</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+            )}
+
+            {/* Affichage des filtres actifs */}
+            {(filters.type || filters.location || filters.active || filters.companyName) && (
+                <div className="mt-3">
+                  <small className="text-muted">Filtres actifs :</small>
+                  <div className="d-flex flex-wrap gap-2 mt-1">
+                    {filters.type && (
+                        <span className="badge bg-primary">
+                    Type: {filters.type} <XCircle className="ms-1 cursor-pointer" onClick={() => setFilters({...filters, type: ''})} />
+                  </span>
+                    )}
+                    {filters.location && (
+                        <span className="badge bg-primary">
+                    Localisation: {filters.location} <XCircle className="ms-1 cursor-pointer" onClick={() => setFilters({...filters, location: ''})} />
+                  </span>
+                    )}
+                    {filters.active && (
+                        <span className="badge bg-primary">
+                    Statut: {filters.active === 'true' ? 'Actives' : 'Inactives'} <XCircle className="ms-1 cursor-pointer" onClick={() => setFilters({...filters, active: ''})} />
+                  </span>
+                    )}
+                    {filters.companyName && (
+                        <span className="badge bg-primary">
+                    Entreprise: {filters.companyName} <XCircle className="ms-1 cursor-pointer" onClick={() => setFilters({...filters, companyName: ''})} />
+                  </span>
+                    )}
+                  </div>
+                </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Tableau des offres */}
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <h5 className="mb-3">Toutes les offres ({filteredOffers.length})</h5>
-          {filteredOffers.length === 0 ? (
-            <p className="text-muted">Aucune offre trouvée.</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead className="table-light">
-                  <tr>
-                    <th>Titre</th>
-                    <th>Entreprise</th>
-                    <th>Type</th>
-                    <th>Lieu</th>
-                    <th>Statut</th>
-                    <th>Date de création</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredOffers.map((offer) => (
-                    <tr key={offer.id}>
-                      <td>{offer.title}</td>
-                      <td>{offer.companyName}</td>
-                      <td>{offer.type}</td>
-                      <td>{offer.location}</td>
-                      <td>
+        {/* Tableau des offres */}
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="mb-0">Toutes les offres ({filteredOffers.length})</h5>
+              <div className="text-muted">
+                <Clock className="me-1" />
+                Tri: {filters.sortDate === 'desc' ? 'Plus récentes' : 'Plus anciennes'}
+              </div>
+            </div>
+
+            {filteredOffers.length === 0 ? (
+                <div className="text-center py-4">
+                  <Funnel className="fs-1 text-muted mb-2" />
+                  <p className="text-muted">Aucune offre ne correspond à vos critères de filtrage</p>
+                  <button className="btn btn-sm btn-outline-primary" onClick={resetFilters}>
+                    Réinitialiser les filtres
+                  </button>
+                </div>
+            ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover">
+                    <thead className="table-light">
+                    <tr>
+                      <th>Titre</th>
+                      <th><Building className="me-1" />Entreprise</th>
+                      <th><FunnelFill className="me-1" />Type</th>
+                      <th><GeoAlt className="me-1" />Lieu</th>
+                      <th>Statut</th>
+                      <th><Clock className="me-1" />Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {filteredOffers.map((offer) => (
+                        <tr key={offer.id}>
+                          <td>{offer.title}</td>
+                          <td>{offer.companyName}</td>
+                          <td>{offer.type}</td>
+                          <td>{offer.location}</td>
+                          <td>
                         <span className={`badge ${offer.active ? 'bg-success' : 'bg-secondary'}`}>
                           {offer.active ? 'Active' : 'Inactive'}
                         </span>
-                      </td>
-                      <td>{new Date(offer.createdAt).toLocaleDateString('fr-FR')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                          </td>
+                          <td>{new Date(offer.createdAt).toLocaleDateString('fr-FR')}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

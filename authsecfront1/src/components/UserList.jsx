@@ -7,11 +7,15 @@ import {
 } from 'recharts';
 import {
   Badge, Button, Table, Pagination,
-  Form, Modal, Alert, Spinner
+  Form, InputGroup, Spinner, Card, Collapse
 } from 'react-bootstrap';
+import {
+  Search, Filter, Person, PersonCheck, PersonX,
+  SortDown, SortUp, Lock, Unlock, Trash, Calendar,
+  CheckCircle, XCircle, ArrowCounterclockwise, ChevronDown, ChevronUp
+} from 'react-bootstrap-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Palette de couleurs pour les graphiques
 const COLORS = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7', '#9c755f', '#bab0ac'];
 
 const EmptyDataPlaceholder = ({ message }) => (
@@ -28,10 +32,13 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
-  const [roleFilter, setRoleFilter] = useState('ALL');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortAsc, setSortAsc] = useState(true);
+  const [filters, setFilters] = useState({
+    role: 'ALL',
+    status: 'ALL',
+    search: '',
+    sort: 'desc'
+  });
+  const [showFilters, setShowFilters] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 8;
 
@@ -104,8 +111,27 @@ const AdminDashboard = () => {
     return Object.entries(data).map(([name, value]) => ({ name, value }));
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+    setCurrentPage(1);
+  };
+
   const toggleSortOrder = () => {
-    setSortAsc(!sortAsc);
+    setFilters(prev => ({
+      ...prev,
+      sort: prev.sort === 'desc' ? 'asc' : 'desc'
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      role: 'ALL',
+      status: 'ALL',
+      search: '',
+      sort: 'desc'
+    });
+    setCurrentPage(1);
   };
 
   const handleDelete = async (user) => {
@@ -140,7 +166,7 @@ const AdminDashboard = () => {
   const handleLockUser = async (userId) => {
     try {
       const durationInput = prompt("Durée du blocage ?", "2");
-      const unitInput = prompt("Unité de durée ? (SECONDS, MINUTES, HOURS, DAYS)", "HOURS");
+      const unitInput = prompt("Unité de durée ? (MINUTES, HOURS, DAYS)", "HOURS");
 
       const lockDuration = parseInt(durationInput);
       const lockDurationUnit = unitInput.toUpperCase();
@@ -187,24 +213,23 @@ const AdminDashboard = () => {
     }
   };
 
-  // Filtrage combiné par rôle, état et recherche
+  // Filtrage et tri des utilisateurs
   const filteredUsers = users.filter(user => {
-    const roleMatch = roleFilter === 'ALL' || user.role === roleFilter;
-    const statusMatch = statusFilter === 'ALL' ||
-        (statusFilter === 'ACTIVE' ? !user.lockedByAdmin : user.lockedByAdmin);
-    const searchMatch = searchTerm === '' ||
-        user.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const roleMatch = filters.role === 'ALL' || user.role === filters.role;
+    const statusMatch = filters.status === 'ALL' ||
+        (filters.status === 'ACTIVE' ? !user.lockedByAdmin : user.lockedByAdmin);
+    const searchMatch = filters.search === '' ||
+        user.firstname.toLowerCase().includes(filters.search.toLowerCase()) ||
+        user.lastname.toLowerCase().includes(filters.search.toLowerCase()) ||
+        user.email.toLowerCase().includes(filters.search.toLowerCase());
 
     return roleMatch && statusMatch && searchMatch;
   });
 
-  // Tri par date
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     const dateA = new Date(a.profileCreatedAt);
     const dateB = new Date(b.profileCreatedAt);
-    return sortAsc ? dateA - dateB : dateB - dateA;
+    return filters.sort === 'asc' ? dateA - dateB : dateB - dateA;
   });
 
   // Pagination
@@ -218,9 +243,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
         <div className="d-flex justify-content-center align-items-center min-vh-80 flex-column">
-          <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <Spinner animation="border" variant="primary" className="mb-3" style={{ width: '3rem', height: '3rem' }} />
           <h6 className="text-muted">Chargement des données...</h6>
         </div>
     );
@@ -293,119 +316,285 @@ const AdminDashboard = () => {
     }
   ];
 
+  // Vérifie si des filtres sont actifs
+  const hasActiveFilters = filters.role !== 'ALL' || filters.status !== 'ALL' || filters.search !== '';
+
   return (
       <div className="container-fluid p-4">
-        <h2>Liste des utilisateurs</h2>
+        <h2 className="mb-4 d-flex align-items-center">
+          <PersonCheck className="me-2" />
+          Gestion des utilisateurs
+        </h2>
 
-        {/* Barre de recherche et filtres */}
-        <div className="row mb-3 g-3">
-          <div className="col-md-4">
-            <label className="form-label">Rechercher :</label>
-            <input
-                type="text"
-                className="form-control"
-                placeholder="Rechercher par nom, prénom ou email..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-            />
-          </div>
+        {/* Carte des filtres avec fonctionnalité de masquage */}
+        <Card className="shadow-sm mb-4">
+          <Card.Header className="bg-white d-flex justify-content-between align-items-center">
+            <h5 className="mb-0 d-flex align-items-center">
+              <Filter className="me-2" />
+              Filtres
+            </h5>
+            <div>
+              <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="me-2"
+                  onClick={() => setShowFilters(!showFilters)}
+              >
+                {showFilters ? 'Masquer' : 'Afficher'} les filtres
+              </Button>
+              <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={resetFilters}
+                  disabled={!hasActiveFilters}
+              >
+                <ArrowCounterclockwise className="me-1" />
+                Réinitialiser
+              </Button>
+            </div>
+          </Card.Header>
 
-          <div className="col-md-4">
-            <label className="form-label">Filtrer par rôle :</label>
-            <select
-                className="form-select"
-                value={roleFilter}
-                onChange={e => {
-                  setRoleFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-            >
-              <option value="ALL">Tous</option>
-              <option value="STUDENT">Étudiant</option>
-              <option value="MANAGER">Manager</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
+          <Collapse in={showFilters}>
+            <Card.Body>
+              <div className="row g-3">
+                {/* Barre de recherche */}
+                <div className="col-md-5">
+                  <label className="form-label">Rechercher :</label>
+                  <InputGroup>
+                    <InputGroup.Text>
+                      <Search />
+                    </InputGroup.Text>
+                    <Form.Control
+                        type="text"
+                        placeholder="Nom, prénom ou email..."
+                        name="search"
+                        value={filters.search}
+                        onChange={handleFilterChange}
+                    />
+                  </InputGroup>
+                </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Filtrer par état :</label>
-            <select
-                className="form-select"
-                value={statusFilter}
-                onChange={e => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-            >
-              <option value="ALL">Tous</option>
-              <option value="ACTIVE">Actif</option>
-              <option value="LOCKED">Bloqué</option>
-            </select>
+                {/* Filtre par rôle */}
+                <div className="col-md-3">
+                  <label className="form-label">Rôle :</label>
+                  <Form.Select
+                      name="role"
+                      value={filters.role}
+                      onChange={handleFilterChange}
+                  >
+                    <option value="ALL">Tous les rôles</option>
+                    <option value="STUDENT">Étudiant</option>
+                    <option value="MANAGER">Manager</option>
+                    <option value="ADMIN">Admin</option>
+                  </Form.Select>
+                </div>
+
+                {/* Filtre par état */}
+                <div className="col-md-2">
+                  <label className="form-label">État :</label>
+                  <Form.Select
+                      name="status"
+                      value={filters.status}
+                      onChange={handleFilterChange}
+                  >
+                    <option value="ALL">Tous</option>
+                    <option value="ACTIVE">Actif</option>
+                    <option value="LOCKED">Bloqué</option>
+                  </Form.Select>
+                </div>
+
+                {/* Tri par date */}
+                <div className="col-md-2">
+                  <label className="form-label">Tri :</label>
+                  <Button
+                      variant={filters.sort === 'desc' ? 'outline-primary' : 'outline-secondary'}
+                      onClick={toggleSortOrder}
+                      className="w-100 d-flex align-items-center justify-content-center"
+                  >
+                    {filters.sort === 'desc' ? (
+                        <>
+                          <SortDown className="me-1" />
+                          Récent
+                        </>
+                    ) : (
+                        <>
+                          <SortUp className="me-1" />
+                          Ancien
+                        </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Affichage des filtres actifs */}
+              {hasActiveFilters && (
+                  <div className="mt-3">
+                    <small className="text-muted">Filtres actifs :</small>
+                    <div className="d-flex flex-wrap gap-2 mt-1">
+                      {filters.role !== 'ALL' && (
+                          <Badge bg="light" text="dark" className="d-flex align-items-center">
+                            <Person className="me-1" />
+                            {filters.role === 'STUDENT' ? 'Étudiant' :
+                                filters.role === 'MANAGER' ? 'Manager' : 'Admin'}
+                            <XCircle
+                                className="ms-1 cursor-pointer"
+                                onClick={() => setFilters({...filters, role: 'ALL'})}
+                                style={{ cursor: 'pointer' }}
+                            />
+                          </Badge>
+                      )}
+                      {filters.status !== 'ALL' && (
+                          <Badge bg="light" text="dark" className="d-flex align-items-center">
+                            {filters.status === 'ACTIVE' ? (
+                                <>
+                                  <CheckCircle className="me-1 text-success" />
+                                  Actif
+                                </>
+                            ) : (
+                                <>
+                                  <Lock className="me-1 text-danger" />
+                                  Bloqué
+                                </>
+                            )}
+                            <XCircle
+                                className="ms-1 cursor-pointer"
+                                onClick={() => setFilters({...filters, status: 'ALL'})}
+                                style={{ cursor: 'pointer' }}
+                            />
+                          </Badge>
+                      )}
+                      {filters.search && (
+                          <Badge bg="light" text="dark" className="d-flex align-items-center">
+                            <Search className="me-1" />
+                            "{filters.search}"
+                            <XCircle
+                                className="ms-1 cursor-pointer"
+                                onClick={() => setFilters({...filters, search: ''})}
+                                style={{ cursor: 'pointer' }}
+                            />
+                          </Badge>
+                      )}
+                    </div>
+                  </div>
+              )}
+            </Card.Body>
+          </Collapse>
+        </Card>
+
+        {/* Tableau des utilisateurs */}
+        <div className="card shadow-sm mb-4">
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <Table striped hover className="mb-0">
+                <thead className="table-light">
+                <tr>
+                  <th>Prénom</th>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Création</th>
+                  <th>Rôle</th>
+                  <th>État</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {currentUsers.length > 0 ? (
+                    currentUsers.map((user, index) => (
+                        <tr key={index}>
+                          <td>{user.firstname}</td>
+                          <td>{user.lastname}</td>
+                          <td>{user.email}</td>
+                          <td>
+                            <small className="text-muted">
+                              {new Date(user.profileCreatedAt).toLocaleDateString('fr-FR')}
+                            </small>
+                          </td>
+                          <td>
+                            <Badge
+                                bg={
+                                  user.role === 'STUDENT' ? 'primary' :
+                                      user.role === 'MANAGER' ? 'warning' : 'danger'
+                                }
+                                className="d-flex align-items-center"
+                            >
+                              {user.role === 'STUDENT' ? (
+                                  <Person className="me-1" />
+                              ) : user.role === 'MANAGER' ? (
+                                  <PersonCheck className="me-1" />
+                              ) : (
+                                  <PersonX className="me-1" />
+                              )}
+                              {user.role === 'STUDENT' ? 'Étudiant' :
+                                  user.role === 'MANAGER' ? 'Manager' : 'Admin'}
+                            </Badge>
+                          </td>
+                          <td>
+                            {user.lockedByAdmin ? (
+                                <Badge bg="danger" className="d-flex align-items-center">
+                                  <Lock className="me-1" />
+                                  Bloqué
+                                </Badge>
+                            ) : (
+                                <Badge bg="success" className="d-flex align-items-center">
+                                  <Unlock className="me-1" />
+                                  Actif
+                                </Badge>
+                            )}
+                          </td>
+                          <td>
+                            <div className="d-flex gap-2">
+                              {(user.role === 'STUDENT' || user.role === 'MANAGER') && (
+                                  <>
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        onClick={() => handleDelete(user)}
+                                        title="Supprimer"
+                                    >
+                                      <Trash size={16} />
+                                    </Button>
+                                    {user.lockedByAdmin ? (
+                                        <Button
+                                            variant="outline-success"
+                                            size="sm"
+                                            onClick={() => handleUnlockUser(user.id)}
+                                            title="Débloquer"
+                                        >
+                                          <Unlock size={16} />
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline-warning"
+                                            size="sm"
+                                            onClick={() => handleLockUser(user.id)}
+                                            title="Bloquer"
+                                        >
+                                          <Lock size={16} />
+                                        </Button>
+                                    )}
+                                  </>
+                              )}
+                              {user.role === 'ADMIN' && (
+                                  <span className="text-muted small">Aucune action</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                      <td colSpan="7" className="text-center py-4 text-muted">
+                        Aucun utilisateur trouvé avec ces critères
+                      </td>
+                    </tr>
+                )}
+                </tbody>
+              </Table>
+            </div>
           </div>
         </div>
 
-        <table className="table table-striped">
-          <thead>
-          <tr>
-            <th>Prénom</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>Date {sortAsc ? '↑' : '↓'}</th>
-            <th>Rôle</th>
-            <th>État</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          {currentUsers.length > 0 ? (
-              currentUsers.map((user, index) => (
-                  <tr key={index}>
-                    <td>{user.firstname}</td>
-                    <td>{user.lastname}</td>
-                    <td>{user.email}</td>
-                    <td>
-                      {user.deactivatedByUser ? (
-                          <span className="badge bg-secondary">A supprimer</span>
-                      ) : (
-                          <span className="badge bg-primary">non</span>
-                      )}
-                    </td>
-                    <td>{new Date(user.profileCreatedAt).toLocaleDateString('fr-FR')}</td>
-                    <td><span className="badge bg-secondary">{user.role}</span></td>
-                    <td>
-                      {user.lockedByAdmin ? (
-                          <span className="badge bg-danger">Bloqué</span>
-                      ) : (
-                          <span className="badge bg-success">Actif</span>
-                      )}
-                    </td>
-                    <td>
-                      {(user.role === 'STUDENT' || user.role === 'MANAGER') && (
-                          <>
-                            <button className="btn btn-sm btn-danger me-2" onClick={() => handleDelete(user)}>Supprimer</button>
-                            <button className="btn btn-sm btn-warning me-2" onClick={() => handleLockUser(user.id)}>Bloquer</button>
-                            <button className="btn btn-sm btn-success" onClick={() => handleUnlockUser(user.id)}>Débloquer</button>
-                          </>
-                      )}
-                      {user.role === 'ADMIN' && <span className="text-muted">Actions non disponibles</span>}
-                    </td>
-                  </tr>
-              ))
-          ) : (
-              <tr>
-                <td colSpan="8" className="text-center py-4 text-muted">
-                  Aucun utilisateur trouvé avec ces critères
-                </td>
-              </tr>
-          )}
-          </tbody>
-        </table>
-
-        {/* Pagination identique à ContactsManager */}
+        {/* Pagination */}
         {filteredUsers.length > usersPerPage && (
             <div className="d-flex justify-content-center mt-3">
               <Pagination>
@@ -430,6 +619,7 @@ const AdminDashboard = () => {
             </div>
         )}
 
+        {/* Graphiques */}
         <div className="row g-3 mt-4">
           {charts.map((item, index) => (
               <div key={index} className="col-12 col-lg-6 mb-3">
