@@ -92,7 +92,6 @@ const NotificationDropdown = ({ userId }) => {
                 { userId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            // Solution optimale : recharger depuis le serveur
             await fetchNotifications();
         } catch (err) {
             console.error("Erreur lors du marquage comme lu", err);
@@ -100,10 +99,30 @@ const NotificationDropdown = ({ userId }) => {
     };
 
     // Gestion du clic sur une notification
-    const handleNotificationClick = (notification) => {
-        markNotificationAsRead(notification.id);
-        navigate(`/ChatPage?receiverId=${notification.senderId}`);
-        setShowNotifications(false);
+    const handleNotificationClick = async (notification) => {
+        try {
+            // Envoyer une commande pour marquer tous les messages comme lus
+            if (stompClientRef.current?.connected) {
+                stompClientRef.current.publish({
+                    destination: `/app/chat/${notification.senderId}/mark-read/${userId}`,
+                    body: JSON.stringify({}),
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            }
+
+            // Marquer la notification comme lue côté client immédiatement
+            setNotifications(prev =>
+                prev.map(n =>
+                    n.senderId === notification.senderId ? { ...n, isRead: true } : n
+                )
+            );
+            setUnreadCount(prev => Math.max(0, prev - 1));
+
+            navigate(`/ChatPage?receiverId=${notification.senderId}`);
+            setShowNotifications(false);
+        } catch (err) {
+            console.error("Error handling notification click", err);
+        }
     };
 
     // Initialisation et WebSocket
@@ -138,6 +157,17 @@ const NotificationDropdown = ({ userId }) => {
                     const deletedMessageId = JSON.parse(message.body);
                     setNotifications(prev =>
                         prev.filter(n => n.messageId !== deletedMessageId)
+                    );
+                    setUnreadCount(prev => Math.max(0, prev - 1));
+                });
+
+                // Abonnement pour les notifications marquées comme lues
+                client.subscribe(`/topic/notifications/read/${userId}`, (message) => {
+                    const senderId = JSON.parse(message.body);
+                    setNotifications(prev =>
+                        prev.map(n =>
+                            n.senderId === senderId ? { ...n, isRead: true } : n
+                        )
                     );
                     setUnreadCount(prev => Math.max(0, prev - 1));
                 });

@@ -228,11 +228,17 @@ const ChatPage = () => {
           { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessages(res.data);
-      res.data.forEach((msg) => {
-        if (msg.receiverId === userId && !msg.read) {
-          markMessageAsRead(msg.id);
+
+      // Marquer les messages comme lus via WebSocket plutôt que directement
+      if (res.data.some(msg => msg.receiverId === userId && !msg.read)) {
+        if (stompClientRef.current?.connected) {
+          stompClientRef.current.publish({
+            destination: `/app/chat/${receiverId}/mark-read/${userId}`,
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${token}` }
+          });
         }
-      });
+      }
     } catch (err) {
       console.error("Error loading messages", err);
     }
@@ -533,6 +539,17 @@ const ChatPage = () => {
     event.stopPropagation();
     setSelectedMessageId(selectedMessageId === messageId ? null : messageId);
   };
+
+  useEffect(() => {
+    if (receiverId && userId && stompClientRef.current?.connected) {
+      // Envoyer une commande pour marquer tous les messages comme lus
+      stompClientRef.current.publish({
+        destination: `/app/chat/${receiverId}/mark-read/${userId}`,
+        body: JSON.stringify({}),
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    }
+  }, [receiverId, userId, token]);
 
   return (
       <div style={styles.container}>
