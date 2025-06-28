@@ -623,19 +623,6 @@ const ChatPage = () => {
           {receiverId && (
               <div style={styles.chatHeader}>
                 <div style={styles.chatHeaderInfo}>
-                  {receiverInfo && (
-                      <>
-                        <img src={receiverImage} alt="Profil" style={styles.chatAvatar} />
-                        <div>
-                          <h3 style={styles.chatTitle}>
-                            {receiverInfo.firstname} {receiverInfo.lastname}
-                          </h3>
-                          <p style={styles.chatStatus}>
-                            {receiverInfo.role}
-                          </p>
-                        </div>
-                      </>
-                  )}
                 </div>
                 <div style={styles.chatHeaderActions}>
                   <button
