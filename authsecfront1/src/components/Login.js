@@ -120,7 +120,7 @@ const Login = ({ setToken }) => {
         <div style={styles.contentContainer}>
           <div style={styles.leftColumn}>
             <div style={styles.loginContainer}>
-              <h2 style={styles.title}>Login to Your Account</h2>
+              <h2 style={styles.title}>Connectez-vous à votre compte</h2>
 
               <form onSubmit={handleSubmit} style={styles.form}>
                 <div style={styles.inputGroup}>
@@ -141,7 +141,7 @@ const Login = ({ setToken }) => {
                     <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
-                        placeholder="Password"
+                        placeholder="Mot de passe"
                         value={formData.password}
                         onChange={handleChange}
                         style={{ ...styles.input, ...(errors.password && styles.inputError) }}
@@ -159,23 +159,23 @@ const Login = ({ setToken }) => {
                 </div>
 
                 <button type="submit" disabled={isLoading} style={styles.loginButton}>
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? 'Connexion en cours...' : 'Se connecter'}
                 </button>
               </form>
 
               <div style={styles.socialSection}>
-                <p style={styles.socialText}>Login using Google</p>
+                <p style={styles.socialText}>Se connecter avec Google</p>
                 <div style={styles.googleButton}>
                   <GoogleLogin
                       onSuccess={async (credentialResponse) => {
-                        console.log("Google Credential Response:", credentialResponse);
+                        console.log("Réponse des identifiants Google:", credentialResponse);
                         const idToken = credentialResponse.credential;
 
                         try {
                           const response = await axios.post(`${API_BASE_URL}/auth/google`, { idToken });
-                          console.log("Backend Response:", response.data);
+                          console.log("Réponse du backend:", response.data);
                           const { access_token, refresh_token, studentProfileId } = response.data;
-                          console.log("studentProfileId from backend:", studentProfileId);
+                          console.log("studentProfileId du backend:", studentProfileId);
 
                           storeTokens(access_token, refresh_token);
                           const decoded = parseJwt(access_token);
@@ -204,13 +204,13 @@ const Login = ({ setToken }) => {
             transition: 'transform 0.5s ease-in-out'
           }}>
             <div style={styles.signupSection}>
-              <p style={styles.signupTitle}>New Here?</p>
-              <p style={styles.signupText}>Sign up and discover a great amount of new opportunities!</p>
+              <p style={styles.signupTitle}>Nouveau ici ?</p>
+              <p style={styles.signupText}>Inscrivez-vous et découvrez de nombreuses opportunités !</p>
               <button
                   onClick={handleSignUpClick}
                   style={styles.signupButton}
               >
-                Sign Up
+                S'inscrire
               </button>
             </div>
           </div>

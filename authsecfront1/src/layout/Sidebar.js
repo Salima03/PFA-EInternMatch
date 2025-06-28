@@ -125,7 +125,7 @@ const Sidebar = () => {
 
     ...(role === 'STUDENT' ? [{ path: '/my-applications', label: 'Candidature', icon: <FaFileAlt /> }] : []),
     { path: '/ChatPage', label: 'Messagerie', icon: <FaComments /> },
-    ...(role === 'MANAGER' ? [{ path: '/offers', label: 'MyOffers', icon: <FaBriefcase /> }] : []),
+    ...(role === 'MANAGER' ? [{ path: '/offers', label: 'Mes Offres', icon: <FaBriefcase /> }] : []),
     { path: '/about', label: 'A propos', icon: <FaInfoCircle /> },
     { path: '/settings', label: 'Parametres', icon: <FaCog /> }
   ];

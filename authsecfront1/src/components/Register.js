@@ -45,14 +45,14 @@ const Register = () => {
           <div style={styles.rightColumn}>
             <div style={styles.loginContainer}>
               <div style={styles.welcomeSection}>
-                <h2 style={styles.title}>Create Account</h2>
-                <p style={styles.subtitle}>Join us to discover amazing opportunities</p>
+                <h2 style={styles.title}>Créer un compte</h2>
+                <p style={styles.subtitle}>Rejoignez-nous pour découvrir des opportunités exceptionnelles</p>
               </div>
               <form onSubmit={handleRegister} style={styles.form}>
                 <div style={styles.inputGroup}>
                   <input
                       type="text"
-                      placeholder="First Name"
+                      placeholder="Prénom"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       style={styles.input}
@@ -62,7 +62,7 @@ const Register = () => {
                 <div style={styles.inputGroup}>
                   <input
                       type="text"
-                      placeholder="Last Name"
+                      placeholder="Nom de famille"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       style={styles.input}
@@ -83,7 +83,7 @@ const Register = () => {
                   <div style={styles.passwordWrapper}>
                     <input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Password"
+                        placeholder="Mot de passe"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={styles.input}
@@ -105,13 +105,12 @@ const Register = () => {
                       value={role}
                       onChange={(e) => setRole(e.target.value)}
                   >
-                    <option value="STUDENT">Student</option>
+                    <option value="STUDENT">Étudiant</option>
                     <option value="MANAGER">Manager</option>
-                    <option value="ADMIN">Admin</option>
                   </select>
                 </div>
                 <button type="submit" style={styles.loginButton}>
-                  Register
+                  S'inscrire
                 </button>
               </form>
               {message && (
@@ -131,13 +130,13 @@ const Register = () => {
             zIndex: 2
           }}>
             <div style={styles.signupSection}>
-              <h2 style={styles.welcomeTitle}>Already Registered?</h2>
-              <p style={styles.welcomeText}>Sign in to access your account and continue your journey with us!</p>
+              <h2 style={styles.welcomeTitle}>Déjà inscrit ?</h2>
+              <p style={styles.welcomeText}>Connectez-vous pour accéder à votre compte et poursuivre votre parcours avec nous !</p>
               <button
                   onClick={handleSignInClick}
                   style={styles.signupButton}
               >
-                Sign In
+                Se connecter
               </button>
             </div>
           </div>
