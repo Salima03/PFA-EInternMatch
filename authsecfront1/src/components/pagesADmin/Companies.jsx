@@ -187,19 +187,19 @@ const AdminDashboard = () => {
       {/* Charts */}
       <div className="row g-3">
         {charts.map((item, index) => (
-          <div key={index} className="col-12 col-lg-6 mb-3">
-            <div className="card shadow-sm h-100 rounded-3 border-0">
-              <div className="card-body p-3">
-                <h5 className="fw-bold mb-2" style={{ color: '#4e79a7' }}>{item.title}</h5>
-                <p className="text-muted small mb-3">{item.description}</p>
-                <div style={{ height: '300px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    {item.chart}
-                  </ResponsiveContainer>
+            <div key={index} className="col-12 col-lg-8 col-xl-6 mb-3 mx-auto"> {/* Modifié ici */}
+              <div className="card shadow-sm h-100 rounded-3 border-0" style={{ maxWidth: '800px' }}> {/* Ajout de maxWidth */}
+                <div className="card-body p-3">
+                  <h5 className="fw-bold mb-2 text-center" style={{ color: '#4e79a7' }}>{item.title}</h5>
+                  <p className="text-muted small mb-3 text-center">{item.description}</p>
+                  <div style={{ height: '300px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      {item.chart}
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
         ))}
       </div>
 

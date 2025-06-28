@@ -3,6 +3,33 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import { styles } from "./ChatPageStyles";
+import {
+  FiSend,
+  FiEdit2,
+  FiTrash2,
+  FiCheck,
+  FiCheckCircle,
+  FiClock,
+  FiMessageSquare,
+  FiPhoneOff,
+  FiUnlock,
+  FiLock,
+  FiAlertTriangle
+} from "react-icons/fi";
+
+const COLORS = {
+  primary: '#00838f',
+  secondary: '#00acc1',
+  lightBlueGreen: '#4fb3bf',
+  darkBlueGreen: '#007c91',
+  veryLightBlue: '#5ddef4',
+  coral: '#ff9e80',
+  pastelGreen: '#a5d6a7',
+  lightBlue: '#80deea',
+  vividCyan: '#26c6da',
+  veryLightBlue2: '#b2ebf2'
+};
 
 const DEFAULT_PROFILE_PICTURE = "https://via.placeholder.com/40";
 
@@ -14,6 +41,7 @@ const ChatPage = () => {
   const rawRole = queryParams.get("role");
   const receiverRole = rawRole?.toUpperCase() === "USER" ? "STUDENT" : rawRole?.toUpperCase() || "STUDENT";
 
+  // States
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [userId, setUserId] = useState(null);
@@ -26,24 +54,17 @@ const ChatPage = () => {
   const [editContent, setEditContent] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
+  const [blockedByMe, setBlockedByMe] = useState(false);
+  const [blockedByThem, setBlockedByThem] = useState(false);
 
   const token = localStorage.getItem("accessToken");
   const stompClientRef = useRef(null);
   const messagesEndRef = useRef(null);
   const menuRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setSelectedMessageId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
+  // Format date functions
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
@@ -53,20 +74,151 @@ const ChatPage = () => {
     }
   };
 
-  const formatDisplayDate = (date) => {
-    return date?.toLocaleDateString() || "";
-  };
+  const formatDisplayDate = (date) => date?.toLocaleDateString() || "";
+  const formatDisplayTime = (date) => date?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || "";
 
-  const formatDisplayTime = (date) => {
-    return date?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || "";
-  };
-
+  // Initialize user
   useEffect(() => {
     if (!token) navigate("/login");
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) setUserId(parseInt(storedUserId));
   }, [token, navigate]);
 
+  // Check block status
+  const checkBothBlockStatus = useCallback(async () => {
+    if (!userId || !receiverId) return;
+
+    try {
+      const [blockedByMeRes, blockedByThemRes] = await Promise.all([
+        axios.get(
+            `http://localhost:1217/api/messages/is-blocked?blockerId=${userId}&blockedId=${receiverId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        ),
+        axios.get(
+            `http://localhost:1217/api/messages/is-blocked?blockerId=${receiverId}&blockedId=${userId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        )
+      ]);
+
+      setBlockedByMe(blockedByMeRes.data);
+      setBlockedByThem(blockedByThemRes.data);
+      setIsBlocked(blockedByMeRes.data || blockedByThemRes.data);
+    } catch (err) {
+      console.error("Error checking block status", err);
+    }
+  }, [userId, receiverId, token]);
+
+  // Block/unblock user
+  const handleBlockUser = async () => {
+    if (!userId || !receiverId || isBlocking) return;
+
+    try {
+      setIsBlocking(true);
+
+      if (blockedByMe) {
+        // Unblock
+        await axios.post(
+            `http://localhost:1217/api/messages/unblock`,
+            {
+              blockerId: userId,
+              blockedId: parseInt(receiverId)
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+        );
+        setBlockedByMe(false);
+        setIsBlocked(blockedByThem);
+      } else {
+        // Block
+        await axios.post(
+            `http://localhost:1217/api/messages/block`,
+            {
+              blockerId: userId,
+              blockedId: parseInt(receiverId)
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+        );
+        setBlockedByMe(true);
+        setIsBlocked(true);
+      }
+
+      await checkBothBlockStatus();
+      await fetchMessages();
+    } catch (err) {
+      console.error("Block/unblock error", err);
+      if (err.response?.status === 403) {
+        alert("Action not authorized");
+      }
+    } finally {
+      setIsBlocking(false);
+    }
+  };
+
+  const handleReportUser = async () => {
+    if (!userId || !receiverId) return;
+
+    const reason = prompt("Pourquoi souhaitez-vous signaler cet utilisateur ?");
+    if (!reason) return;
+
+    try {
+      setIsProcessing(true);
+      await axios.post(
+          `http://localhost:1217/api/v1/users/${receiverId}/report`,
+          { reason: reason }, // Ensure this is an object with "reason" property
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json' // Explicit content type
+            }
+          }
+      );
+      alert("Utilisateur signalé avec succès");
+    } catch (err) {
+      console.error("Error reporting user", err);
+      if (err.response?.data) {
+        alert(err.response.data); // Show server error message if available
+      } else {
+        alert("Erreur lors du signalement");
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Report message
+  const handleReportMessage = async (messageId) => {
+    if (!messageId) return;
+
+    const reason = prompt("Pourquoi souhaitez-vous signaler ce message ?");
+    if (!reason) return;
+
+    try {
+      setIsProcessing(true);
+      await axios.post(
+          `http://localhost:1217/api/messages/${messageId}/report`,
+          { reason },
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Message signalé avec succès");
+      setSelectedMessageId(null);
+    } catch (err) {
+      console.error("Error reporting message", err);
+      alert("Erreur lors du signalement");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Fetch messages
   const fetchMessages = useCallback(async () => {
     if (!userId || !receiverId) return;
 
@@ -82,10 +234,11 @@ const ChatPage = () => {
         }
       });
     } catch (err) {
-      console.error("Erreur lors du chargement des messages", err);
+      console.error("Error loading messages", err);
     }
   }, [userId, receiverId, token]);
 
+  // Fetch receiver info
   const fetchReceiverInfo = useCallback(async () => {
     if (!receiverId) return;
 
@@ -105,11 +258,12 @@ const ChatPage = () => {
       );
       setReceiverImage(URL.createObjectURL(imgRes.data));
     } catch (err) {
-      console.error("Erreur profil ou image", err);
+      console.error("Error loading profile", err);
       setReceiverImage(DEFAULT_PROFILE_PICTURE);
     }
   }, [receiverId, token, receiverRole]);
 
+  // Mark message as read
   const markMessageAsRead = useCallback(async (messageId) => {
     try {
       await axios.post(
@@ -132,10 +286,11 @@ const ChatPage = () => {
         return conv;
       }));
     } catch (err) {
-      console.error("Erreur lecture message", err);
+      console.error("Error marking message as read", err);
     }
   }, [token, receiverId]);
 
+  // Fetch conversation images
   const fetchConversationImages = useCallback(async (convs) => {
     const newImages = {};
     await Promise.all(
@@ -157,6 +312,7 @@ const ChatPage = () => {
     setConversationImages(newImages);
   }, [token]);
 
+  // Fetch conversations
   const fetchConversations = useCallback(async () => {
     if (!userId) return;
 
@@ -176,109 +332,20 @@ const ChatPage = () => {
       setConversations(sortedConversations);
       fetchConversationImages(sortedConversations);
     } catch (err) {
-      console.error("Erreur chargement conversations", err);
+      console.error("Error loading conversations", err);
     } finally {
       setLoadingConversations(false);
     }
   }, [userId, token, fetchConversationImages]);
 
-  const syncConversationState = useCallback((updatedMessage) => {
-    setConversations(prev => {
-      const otherUserId = updatedMessage.senderId === userId
-          ? updatedMessage.receiverId
-          : updatedMessage.senderId;
-
-      const existingConvIndex = prev.findIndex(conv =>
-          conv.userId === otherUserId
-      );
-
-      // Si le message est complètement supprimé
-      if (updatedMessage.completelyDeleted) {
-        // Si c'est le dernier message d'une conversation
-        const updatedConversations = prev.map(conv => {
-          if (conv.lastMessageId === updatedMessage.id) {
-            // Trouver le nouveau dernier message
-            const conversationMessages = messages.filter(m =>
-                ((m.senderId === userId && m.receiverId === otherUserId) ||
-                    (m.senderId === otherUserId && m.receiverId === userId)) &&
-                shouldDisplayMessage(m)
-            );
-
-            const lastMsg = conversationMessages[conversationMessages.length - 1];
-
-            return {
-              ...conv,
-              lastMessage: lastMsg?.content || "Message supprimé",
-              lastMessageId: lastMsg?.id,
-              timestamp: lastMsg?.timestamp || conv.timestamp
-            };
-          }
-          return conv;
-        });
-
-        return updatedConversations.filter(shouldDisplayConversation);
-      }
-
-      if (existingConvIndex >= 0) {
-        const updatedConversations = prev.map(conv => {
-          if (conv.userId === otherUserId) {
-            const isUnreadUpdate = updatedMessage.receiverId === userId && !updatedMessage.read;
-
-            return {
-              ...conv,
-              lastMessage: updatedMessage.content,
-              lastMessageId: updatedMessage.id,
-              timestamp: updatedMessage.timestamp,
-              unreadCount: isUnreadUpdate ? conv.unreadCount + 1 : conv.unreadCount,
-              read: updatedMessage.senderId === userId,
-              deletedBySender: updatedMessage.deletedBySender,
-              deletedByReceiver: updatedMessage.deletedByReceiver,
-              completelyDeleted: updatedMessage.completelyDeleted
-            };
-          }
-          return conv;
-        });
-
-        return updatedConversations.sort((a, b) => {
-          const dateA = new Date(a.timestamp);
-          const dateB = new Date(b.timestamp);
-          return dateB - dateA;
-        });
-      } else {
-        const newConv = {
-          userId: otherUserId,
-          role: updatedMessage.senderId === userId ? receiverRole : "STUDENT",
-          firstname: receiverInfo?.firstname || "Nouvel utilisateur",
-          lastname: receiverInfo?.lastname || "",
-          lastMessage: updatedMessage.content,
-          lastMessageId: updatedMessage.id,
-          timestamp: updatedMessage.timestamp,
-          unreadCount: updatedMessage.receiverId === userId && !updatedMessage.read ? 1 : 0,
-          read: updatedMessage.senderId === userId,
-          deletedBySender: updatedMessage.deletedBySender,
-          deletedByReceiver: updatedMessage.deletedByReceiver,
-          completelyDeleted: updatedMessage.completelyDeleted,
-          senderId: updatedMessage.senderId,
-          receiverId: updatedMessage.receiverId
-        };
-
-        const updatedConversations = [...prev, newConv].sort((a, b) => {
-          const dateA = new Date(a.timestamp);
-          const dateB = new Date(b.timestamp);
-          return dateB - dateA;
-        });
-
-        return updatedConversations;
-      }
-    });
-  }, [userId, receiverRole, receiverInfo, messages]);
-
+  // Initialize data
   useEffect(() => {
     if (userId && receiverId) {
       fetchMessages();
       fetchReceiverInfo();
+      checkBothBlockStatus();
     }
-  }, [userId, receiverId, fetchMessages, fetchReceiverInfo]);
+  }, [userId, receiverId, fetchMessages, fetchReceiverInfo, checkBothBlockStatus]);
 
   useEffect(() => {
     if (userId) fetchConversations();
@@ -290,6 +357,7 @@ const ChatPage = () => {
     }
   }, [conversations, fetchConversationImages]);
 
+  // WebSocket connection
   useEffect(() => {
     if (!userId || !receiverId || !token) return;
 
@@ -297,7 +365,7 @@ const ChatPage = () => {
       webSocketFactory: () => new SockJS("http://localhost:1217/ws"),
       connectHeaders: { Authorization: `Bearer ${token}` },
       onConnect: () => {
-        console.log("✅ WebSocket connecté");
+        console.log("✅ WebSocket connected");
 
         client.subscribe(`/topic/messages/${userId}`, async (msgOutput) => {
           const message = JSON.parse(msgOutput.body);
@@ -310,8 +378,6 @@ const ChatPage = () => {
             }
             setMessages((prevMessages) => [...prevMessages, message]);
           }
-
-          syncConversationState(message);
         });
 
         client.subscribe(`/topic/messages/update/${userId}`, (updateOutput) => {
@@ -326,9 +392,7 @@ const ChatPage = () => {
                 msg.id === updatedMessage.id ? updatedMessage : msg
             );
           });
-
-          syncConversationState(updatedMessage);
-          fetchConversations(); // Force le rafraîchissement des conversations
+          fetchConversations();
         });
       },
       onStompError: (frame) => {
@@ -342,14 +406,16 @@ const ChatPage = () => {
     return () => {
       if (stompClientRef.current) stompClientRef.current.deactivate();
     };
-  }, [userId, receiverId, token, markMessageAsRead, syncConversationState, fetchConversations]);
+  }, [userId, receiverId, token, markMessageAsRead, fetchConversations]);
 
+  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Send message
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !userId || !receiverId) return;
+    if (!newMessage.trim() || !userId || !receiverId || isBlocked) return;
 
     try {
       const res = await axios.post(
@@ -373,58 +439,25 @@ const ChatPage = () => {
 
       setMessages((prev) => [...prev, sentMessage]);
       setNewMessage("");
-
-      const conversationUpdate = {
-        ...sentMessage,
-        firstname: receiverInfo?.firstname || "Nouvel utilisateur",
-        lastname: receiverInfo?.lastname || "",
-        role: receiverRole
-      };
-
-      syncConversationState(conversationUpdate);
+      fetchConversations();
     } catch (err) {
-      console.error("Erreur d'envoi", err);
+      console.error("Error sending message", err);
     }
   };
 
+  // Delete message
   const handleDeleteMessage = async (messageId) => {
     try {
       setIsProcessing(true);
+      await axios.delete(
+          `http://localhost:1217/api/messages/${messageId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      // Mise à jour optimiste des messages
       setMessages(prevMessages =>
           prevMessages.filter(msg => msg.id !== messageId)
       );
 
-      // Mise à jour optimiste des conversations
-      setConversations(prevConversations => {
-        const updatedConversations = prevConversations.map(conv => {
-          // Si le dernier message de la conversation est celui qu'on supprime
-          if (conv.lastMessageId === messageId) {
-            // Trouver le nouveau dernier message non supprimé
-            const remainingMessages = messages.filter(m =>
-                m.id !== messageId &&
-                ((m.senderId === userId && m.receiverId === conv.userId) ||
-                    (m.senderId === conv.userId && m.receiverId === userId)) &&
-                shouldDisplayMessage(m)
-            );
-
-            const lastMessage = remainingMessages[remainingMessages.length - 1];
-
-            return {
-              ...conv,
-              lastMessage: lastMessage?.content || "Message supprimé",
-              lastMessageId: lastMessage?.id,
-              timestamp: lastMessage?.timestamp || conv.timestamp
-            };
-          }
-          return conv;
-        });
-
-        return updatedConversations.filter(shouldDisplayConversation);
-      });
-
-      // Envoyer la requête de suppression au serveur
       if (stompClientRef.current?.connected) {
         stompClientRef.current.publish({
           destination: `/app/chat/${messageId}/delete/${userId}`,
@@ -432,18 +465,16 @@ const ChatPage = () => {
         });
       }
 
-      // Rafraîchir les conversations après un court délai
-      setTimeout(() => {
-        fetchConversations();
-      }, 300);
-
+      fetchConversations();
     } catch (err) {
-      console.error("Erreur lors de la suppression du message", err);
+      console.error("Error deleting message", err);
     } finally {
       setIsProcessing(false);
+      setSelectedMessageId(null);
     }
   };
 
+  // Edit message
   const startEditing = (message) => {
     setEditingMessageId(message.id);
     setEditContent(message.content);
@@ -459,43 +490,42 @@ const ChatPage = () => {
 
     try {
       setIsProcessing(true);
+      await axios.put(
+          `http://localhost:1217/api/messages/${editingMessageId}/edit/${userId}`,
+          editContent,
+          { headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'text/plain'
+            }}
+      );
+
       if (stompClientRef.current?.connected) {
         stompClientRef.current.publish({
           destination: `/app/chat/${editingMessageId}/edit/${userId}`,
           body: editContent,
         });
       }
+
       setEditingMessageId(null);
       setEditContent("");
+      fetchMessages();
     } catch (err) {
-      console.error("Erreur lors de la modification du message", err);
+      console.error("Error editing message", err);
     } finally {
       setIsProcessing(false);
     }
   };
 
+  // Helper functions
   const shouldDisplayMessage = (msg) => {
     if (msg.completelyDeleted) return false;
-
-    if (msg.senderId === userId) {
-      return !msg.deletedBySender;
-    } else {
-      return !msg.deletedByReceiver;
-    }
+    return true;
   };
 
   const shouldDisplayConversation = (conv) => {
-    if (conv.completelyDeleted) return false;
-
-    // Si la conversation n'a pas de dernier message valide
     if (!conv.lastMessage || conv.lastMessage === "Message supprimé") {
       return false;
     }
-
-    if (conv.senderId === userId && conv.deletedBySender) return false;
-
-    if (conv.receiverId === userId && conv.deletedByReceiver) return false;
-
     return true;
   };
 
@@ -508,7 +538,7 @@ const ChatPage = () => {
       <div style={styles.container}>
         <div style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
-            <h3 style={styles.sidebarTitle}>Messages</h3>
+            <h3 style={styles.sidebarTitle}>Discussions</h3>
             {loadingConversations && <div style={styles.loadingIndicator}>Chargement...</div>}
           </div>
           <div style={styles.conversationList}>
@@ -526,7 +556,7 @@ const ChatPage = () => {
                           style={{
                             ...styles.conversationItem,
                             backgroundColor: isActive
-                                ? "#e3f2fd"
+                                ? COLORS.veryLightBlue2
                                 : hasUnread
                                     ? "#f5f5f5"
                                     : "#ffffff",
@@ -534,7 +564,7 @@ const ChatPage = () => {
                       >
                         <img
                             src={conversationImages[conv.userId] || DEFAULT_PROFILE_PICTURE}
-                            alt="Profile"
+                            alt="Profil"
                             style={styles.conversationAvatar}
                         />
                         <div style={styles.conversationContent}>
@@ -542,7 +572,7 @@ const ChatPage = () => {
                             <strong style={{
                               ...styles.conversationName,
                               fontWeight: hasUnread ? "600" : "500",
-                              color: hasUnread ? "#000000" : "#333333"
+                              color: hasUnread ? COLORS.darkBlueGreen : "#333333"
                             }}>
                               {conv.firstname} {conv.lastname}
                             </strong>
@@ -573,7 +603,52 @@ const ChatPage = () => {
         </div>
 
         <div style={styles.chatArea}>
-
+          {receiverId && (
+              <div style={styles.chatHeader}>
+                <div style={styles.chatHeaderInfo}>
+                  {receiverInfo && (
+                      <>
+                        <img src={receiverImage} alt="Profil" style={styles.chatAvatar} />
+                        <div>
+                          <h3 style={styles.chatTitle}>
+                            {receiverInfo.firstname} {receiverInfo.lastname}
+                          </h3>
+                          <p style={styles.chatStatus}>
+                            {receiverInfo.role}
+                          </p>
+                        </div>
+                      </>
+                  )}
+                </div>
+                <div style={styles.chatHeaderActions}>
+                  <button
+                      onClick={handleReportUser}
+                      disabled={isProcessing}
+                      style={styles.reportButton}
+                  >
+                    <FiAlertTriangle style={{ marginRight: 5 }} /> Signaler
+                  </button>
+                  <button
+                      onClick={handleBlockUser}
+                      disabled={isBlocking || blockedByThem}
+                      style={{
+                        ...styles.blockButton,
+                        backgroundColor: blockedByMe ? COLORS.lightBlueGreen : COLORS.primary,
+                        cursor: blockedByThem ? 'not-allowed' : 'pointer',
+                        opacity: blockedByThem ? 0.6 : 1
+                      }}
+                  >
+                    {isBlocking
+                        ? "..."
+                        : blockedByThem
+                            ? <><FiPhoneOff style={{ marginRight: 5 }} /> Bloqué</>
+                            : blockedByMe
+                                ? <><FiUnlock style={{ marginRight: 5 }} />Débloquer</>
+                                : <><FiLock style={{ marginRight: 5 }} />Bloquer</>}
+                  </button>
+                </div>
+              </div>
+          )}
 
           <div style={styles.messagesContainer}>
             {messages
@@ -600,7 +675,7 @@ const ChatPage = () => {
                           {editingMessageId === msg.id ? (
                               <div style={{
                                 ...styles.messageBubble,
-                                backgroundColor: msg.senderId === userId ? "#dcf8c6" : "#ffffff",
+                                backgroundColor: msg.senderId === userId ?  "#ffffff" : "#F0F0F0" ,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: '5px'
@@ -618,7 +693,7 @@ const ChatPage = () => {
                                       disabled={isProcessing}
                                       style={styles.saveEditButton}
                                   >
-                                    {isProcessing ? "En cours..." : "Valider"}
+                                    {isProcessing ? "En cours..." : "Enregistrer"}
                                   </button>
                                   <button
                                       onClick={cancelEditing}
@@ -631,58 +706,87 @@ const ChatPage = () => {
                               </div>
                           ) : (
                               <div
-                                  onClick={(e) => msg.senderId === userId && handleMessageClick(msg.id, e)}
+                                  onClick={(e) => handleMessageClick(msg.id, e)}
                                   style={{
                                     ...styles.messageBubble,
-                                    backgroundColor: msg.senderId === userId ? "#dcf8c6" : "#ffffff",
+                                    backgroundColor: msg.senderId === userId ? "#ffffff" : "#F0F0F0",
                                     position: "relative"
                                   }}
                               >
                                 <div style={styles.messageContent}>
                                   <div style={styles.messageText}>{msg.content}</div>
-                                  <div style={styles.messageMeta}>
-                                    {displayTime && <span style={styles.messageTime}>{displayTime}</span>}
+                                  <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    marginTop: '-7px'
+                                  }}>
+                                    {msg.edited && (
+                                        <span style={{
+                                          color: '#999999',
+                                          fontSize: '10px'
+                                        }}>
+                                (modifié)
+                              </span>
+                                    )}
+                                    {displayTime && (
+                                        <span style={{
+                                          color: '#999999',
+                                          fontSize: '10px'
+                                        }}>
+                                {displayTime}
+                              </span>
+                                    )}
                                     {msg.senderId === userId && (
-                                        <>
-                                <span style={{
-                                  ...styles.messageStatus,
-                                  color: msg.read ? "#53bdeb" : "#999999",
-                                }}>
-                                  {msg.read ? "✓✓" : "✓"}
-                                </span>
-                                          {msg.edited && (
-                                              <span style={styles.editedLabel}>
-                                    (modifié)
-                                  </span>
-                                          )}
-                                        </>
+                                        <span style={{
+                                          color: msg.read ? COLORS.vividCyan : '#999999',
+                                          display: 'flex',
+                                          alignItems: 'center'
+                                        }}>
+                                {msg.read ? <FiCheckCircle size={12} /> : <FiCheck size={12} />}
+                              </span>
                                     )}
                                   </div>
                                 </div>
 
-                                {msg.senderId === userId && msg.id && selectedMessageId === msg.id && (
-                                   <div ref={menuRef} style={styles.messageMenu}>
+                                {selectedMessageId === msg.id && (
+                                    <div ref={menuRef} style={styles.messageMenu}>
+                                      {msg.senderId === userId && (
+                                          <>
+                                            <button
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  startEditing(msg);
+                                                  setSelectedMessageId(null);
+                                                }}
+                                                disabled={isProcessing}
+                                                style={{ ...styles.menuItem, color: COLORS.primary }}
+                                            >
+                                              <FiEdit2 style={{ ...styles.menuIcon, color: COLORS.primary }} /> Modifier
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleDeleteMessage(msg.id);
+                                                  setSelectedMessageId(null);
+                                                }}
+                                                disabled={isProcessing}
+                                                style={{ ...styles.menuItem, color: "#f44336" }}
+                                            >
+                                              <FiTrash2 style={{ marginRight: 5, color: "#f44336" }} /> Supprimer
+                                            </button>
+                                          </>
+                                      )}
                                       <button
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            startEditing(msg);
-                                            setSelectedMessageId(null);
+                                            handleReportMessage(msg.id);
                                           }}
                                           disabled={isProcessing}
-                                          style={styles.menuItem}
+                                          style={{ ...styles.menuItem, color: "#ff9800" }}
                                       >
-                                        <span style={styles.menuIcon}>✏️</span> Modifier
-                                      </button>
-                                      <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteMessage(msg.id);
-                                            setSelectedMessageId(null);
-                                          }}
-                                          disabled={isProcessing}
-                                          style={{ ...styles.menuItem, color: "#f44336" }}
-                                      >
-                                        <span style={styles.menuIcon}>🗑️</span> Supprimer
+                                        <FiAlertTriangle style={{ marginRight: 5, color: "#ff9800" }} /> Signaler
                                       </button>
                                     </div>
                                 )}
@@ -695,7 +799,7 @@ const ChatPage = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {receiverId && rawRole ? (
+          {receiverId && rawRole && !isBlocked && (
               <div style={styles.messageInputContainer}>
                 <input
                     type="text"
@@ -711,320 +815,29 @@ const ChatPage = () => {
                     style={styles.sendButton}
                     disabled={isProcessing || !newMessage.trim()}
                 >
-                  Envoyer
+                  <FiSend style={{ marginRight: 5 }} /> Envoyer
                 </button>
               </div>
-          ) : (
+          )}
+
+          {receiverId && rawRole && isBlocked && (
+              <div style={styles.blockedInput}>
+                <p>
+                  {blockedByMe
+                      ? <><FiLock style={{ marginRight: 5 }} />Vous avez bloqué cet utilisateur. Vous ne pouvez pas envoyer de messages.</>
+                      : <><FiPhoneOff style={{ marginRight: 5 }} />Cet utilisateur vous a bloqué. Vous ne pouvez pas envoyer de messages.</>}
+                </p>
+              </div>
+          )}
+
+          {!receiverId && (
               <div style={styles.noRecipientMessage}>
-                <p>Sélectionnez une conversation pour envoyer un message</p>
+                <p><FiMessageSquare style={{ marginRight: 5 }} />Sélectionnez une conversation pour envoyer un message</p>
               </div>
           )}
         </div>
       </div>
   );
-};
-
-const styles = {
-  container: {
-    display: "flex",
-    height: "100vh",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    backgroundColor: "#fafafa",
-  },
-  sidebar: {
-    width: "350px",
-    borderRight: "1px solid #e0e0e0",
-    backgroundColor: "#ffffff",
-    display: "flex",
-    flexDirection: "column",
-  },
-  sidebarHeader: {
-    padding: "20px",
-    borderBottom: "1px solid #e0e0e0",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-  },
-  sidebarTitle: {
-    margin: 0,
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#333",
-  },
-  loadingIndicator: {
-    fontSize: "12px",
-    color: "#666",
-  },
-  conversationList: {
-    flex: 1,
-    overflowY: "auto",
-  },
-  conversationItem: {
-    display: "flex",
-    alignItems: "center",
-    padding: "12px 15px",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    borderBottom: "1px solid #f0f0f0",
-  },
-  conversationAvatar: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "50%",
-    marginRight: "12px",
-    objectFit: "cover",
-    border: "2px solid #e0e0e0",
-  },
-  conversationContent: {
-    flex: 1,
-    minWidth: 0,
-  },
-  conversationHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "4px",
-  },
-  conversationName: {
-    fontSize: "14px",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxWidth: "70%",
-  },
-  conversationTime: {
-    fontSize: "11px",
-    color: "#757575",
-  },
-  conversationPreview: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  conversationLastMessage: {
-    fontSize: "13px",
-    color: "#616161",
-    margin: 0,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxWidth: "80%",
-  },
-  unreadBadge: {
-    backgroundColor: "#2196f3",
-    color: "white",
-    borderRadius: "50%",
-    minWidth: "20px",
-    height: "20px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "11px",
-    fontWeight: "bold",
-  },
-  chatArea: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    backgroundColor: "#f5f5f5",
-  },
-  chatHeader: {
-    display: "flex",
-    alignItems: "center",
-    padding: "15px 20px",
-    backgroundColor: "#ffffff",
-    borderBottom: "1px solid #e0e0e0",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-  },
-  chatAvatar: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "50%",
-    marginRight: "15px",
-    objectFit: "cover",
-    border: "1px solid #e0e0e0",
-  },
-  chatTitle: {
-    margin: 0,
-    fontSize: "16px",
-    fontWeight: "500",
-  },
-  chatStatus: {
-    margin: 0,
-    fontSize: "13px",
-    color: "#757575",
-  },
-  messagesContainer: {
-    flex: 1,
-    padding: "20px",
-    overflowY: "auto",
-    background: "#e5ddd5",
-    backgroundImage: "url('https://web.whatsapp.com/img/bg-chat-tile-light_a4be512e7195b6b733d9110b408f075d.png')",
-  },
-  messageWrapper: {
-    display: "flex",
-    marginBottom: "2px",
-    width: "100%",
-  },
-  messageContainer: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-  },
-  messageDate: {
-    alignSelf: "center",
-    backgroundColor: "rgba(225,245,254,0.92)",
-    padding: "5px 12px",
-    borderRadius: "7.5px",
-    fontSize: "12.5px",
-    color: "#0d4b7a",
-    margin: "10px 0",
-    fontWeight: "500",
-    boxShadow: "0 1px 0.5px rgba(0,0,0,0.13)",
-  },
-  messageBubble: {
-    maxWidth: "70%",
-    padding: "10px 12px 10px 8px",
-    borderRadius: "7.5px",
-    position: "relative",
-    marginBottom: "2px",
-    boxShadow: "0 1px 0.5px rgba(0,0,0,0.13)",
-  },
-  messageContent: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  messageText: {
-    fontSize: "14.2px",
-    lineHeight: "1.4",
-    wordBreak: "break-word",
-    marginRight: "40px",
-    marginBottom: "7px",
-  },
-  messageMeta: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    float: "right",
-    margin: "-10px -5px -5px 5px",
-    position: "relative",
-    height: "15px",
-  },
-  messageTime: {
-    fontSize: "11px",
-    color: "rgba(0,0,0,0.45)",
-    marginRight: "3px",
-    letterSpacing: "-0.3px",
-    transform: "translateY(1px)",
-  },
-  messageStatus: {
-    fontSize: "13px",
-    marginLeft: "3px",
-    letterSpacing: "-1px",
-    transform: "translateY(-0.1px)",
-  },
-  editedLabel: {
-    fontSize: "11px",
-    color: "rgba(0,0,0,0.45)",
-    marginLeft: "4px",
-    fontStyle: "italic",
-  },
-  messageMenu: {
-    position: "absolute",
-    right: 0,
-    top: "100%",
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-    zIndex: 10,
-    minWidth: "150px",
-    overflow: "hidden",
-    marginTop: "5px",
-  },
-  menuItem: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    padding: "8px 12px",
-    border: "none",
-    backgroundColor: "transparent",
-    cursor: "pointer",
-    fontSize: "14px",
-    textAlign: "left",
-  },
-  menuIcon: {
-    marginRight: "8px",
-    fontSize: "16px",
-  },
-  editInput: {
-    padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #e0e0e0",
-    width: "90%",
-    fontSize: "15px",
-    marginBottom: "5px",
-    outline: "none",
-  },
-  editButtons: {
-    display: "flex",
-    gap: "5px",
-    justifyContent: "flex-end",
-  },
-  saveEditButton: {
-    padding: "6px 12px",
-    backgroundColor: "#4caf50",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "background-color 0.2s",
-  },
-  cancelEditButton: {
-    padding: "6px 12px",
-    backgroundColor: "#f44336",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "background-color 0.2s",
-  },
-  messageInputContainer: {
-    display: "flex",
-    padding: "15px",
-    backgroundColor: "#ffffff",
-    borderTop: "1px solid #e0e0e0",
-  },
-  messageInput: {
-    flex: 1,
-    padding: "12px 15px",
-    borderRadius: "24px",
-    border: "1px solid #e0e0e0",
-    outline: "none",
-    fontSize: "15px",
-  },
-  sendButton: {
-    backgroundColor: "#2196f3",
-    color: "white",
-    border: "none",
-    padding: "0 20px",
-    borderRadius: "24px",
-    cursor: "pointer",
-    fontSize: "15px",
-    fontWeight: "500",
-    marginLeft: "10px",
-    transition: "background-color 0.2s",
-  },
-  noRecipientMessage: {
-    padding: "20px",
-    textAlign: "center",
-    color: "#666",
-    fontStyle: "italic",
-    backgroundColor: "#fff",
-    borderTop: "1px solid #e0e0e0"
-  }
 };
 
 export default ChatPage;

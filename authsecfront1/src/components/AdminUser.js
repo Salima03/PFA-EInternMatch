@@ -4,12 +4,18 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import UserList from './UserList';
 
-const AdminOffre = ({ handleLogout }) => {
+const AdminOffre = () => {  // Suppression de la prop handleLogout
     const navigate = useNavigate();
     const location = useLocation();
 
     const getLinkClass = (path) => {
         return location.pathname === path ? 'text-dark fw-bold' : 'text-secondary';
+    };
+
+    // Ajout de la fonction handleLogout directement dans le composant
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
     };
 
     return (
@@ -18,7 +24,7 @@ const AdminOffre = ({ handleLogout }) => {
             <Navbar bg="white" expand="lg" className="shadow-sm px-4 py-3">
                 <Container fluid>
                     <Navbar.Brand href="#" className="fw-bold text-teal">
-                    E-InterMatch
+                        E-InterMatch
                     </Navbar.Brand>
                     <Navbar.Toggle />
                     <Navbar.Collapse>
@@ -47,16 +53,28 @@ const AdminOffre = ({ handleLogout }) => {
                             >
                                 Offres
                             </Nav.Link>
-                             <Nav.Link
-                                                            onClick={() => navigate('/admin/candidature')}
-                                                            className={getLinkClass('/admin/candidature')}
-                                                        >
-                                                            Candidature
-                                                        </Nav.Link>
+                            <Nav.Link
+                                onClick={() => navigate('/admin/candidature')}
+                                className={getLinkClass('/admin/candidature')}
+                            >
+                                Candidatures
+                            </Nav.Link>
+                            <Nav.Link
+                                onClick={() => navigate('/admin/messages')}
+                                className={getLinkClass('/admin/messages')}
+                            >
+                                Messages
+                            </Nav.Link>
+                            <Nav.Link
+                                onClick={() => navigate('/admin/reports')}
+                                className={getLinkClass('/admin/reports')}
+                            >
+                                Signalements
+                            </Nav.Link>
                         </Nav>
                         <Button
                             variant="light"
-                            onClick={handleLogout}
+                            onClick={handleLogout}  // Utilisation de la fonction locale
                             className="ms-2 border rounded-pill px-3 py-2 text-dark shadow-sm"
                         >
                             <i className="fas fa-sign-out-alt me-1"></i> Déconnexion
@@ -70,7 +88,6 @@ const AdminOffre = ({ handleLogout }) => {
                 <Container fluid>
                     <div className="bg-white rounded-4 shadow-sm p-4">
                         <UserList />
-                        
                     </div>
                 </Container>
             </main>

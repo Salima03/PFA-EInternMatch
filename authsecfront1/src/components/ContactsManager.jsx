@@ -1,23 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  Badge, Button, Card, Table,
+  Form, Modal, Alert, Spinner, Pagination
+} from 'react-bootstrap';
+import { FiMail, FiTrash2, FiRefreshCw } from 'react-icons/fi';
 
 const ContactsManager = () => {
+  // États
   const [contacts, setContacts] = useState([]);
+  const [filteredContacts, setFilteredContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [successMessage, setSuccessMessage] = useState('');
+  const contactsPerPage = 10;
+
+  const token = localStorage.getItem('accessToken');
 
   // Charger tous les contacts
   const fetchContacts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('accessToken'); // si nécessaire
       const response = await axios.get('/api/contact/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setContacts(response.data);
+      setFilteredContacts(response.data);
       setError(null);
     } catch (err) {
-      setError('Erreur lors du chargement des contacts');
+      setError(err.response?.data?.message || 'Erreur lors du chargement des contacts');
     } finally {
       setLoading(false);
     }
@@ -27,18 +42,43 @@ const ContactsManager = () => {
     fetchContacts();
   }, []);
 
+  // Filtrer les contacts
+  useEffect(() => {
+    let result = [...contacts];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(contact =>
+          contact.fullName.toLowerCase().includes(term) ||
+          contact.email.toLowerCase().includes(term) ||
+          contact.message.toLowerCase().includes(term)
+      );
+    }
+
+    setFilteredContacts(result);
+    setCurrentPage(1);
+  }, [searchTerm, contacts]);
+
+  // Pagination
+  const indexOfLastContact = currentPage * contactsPerPage;
+  const indexOfFirstContact = indexOfLastContact - contactsPerPage;
+  const currentContacts = filteredContacts.slice(indexOfFirstContact, indexOfLastContact);
+  const totalPages = Math.ceil(filteredContacts.length / contactsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   // Supprimer un contact
   const handleDeleteContact = async (id) => {
     if (!window.confirm('Voulez-vous supprimer ce contact ?')) return;
     try {
-      const token = localStorage.getItem('accessToken');
       await axios.delete(`/api/contact/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert('Contact supprimé');
-      fetchContacts(); // rafraîchir la liste
+      setSuccessMessage('Contact supprimé avec succès');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      fetchContacts();
     } catch (err) {
-      alert('Erreur lors de la suppression');
+      setError('Erreur lors de la suppression');
     }
   };
 
@@ -47,50 +87,224 @@ const ContactsManager = () => {
     window.location.href = `mailto:${email}`;
   };
 
-  if (loading) return <p>Chargement...</p>;
-  if (error) return <p>{error}</p>;
+  // Formatage de la date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return (
+        <div className="d-flex justify-content-center align-items-center min-vh-100">
+          <Spinner animation="border" variant="primary" />
+        </div>
+    );
+  }
 
   return (
-    <div className="container mt-4">
-      <h2>Liste des contacts</h2>
-      {contacts.length === 0 ? (
-        <p>Aucun contact trouvé.</p>
-      ) : (
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Message</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map(contact => (
-              <tr key={contact.id}>
-                <td>{contact.fullName}</td>
-                <td>{contact.email}</td>
-                <td>{contact.message}</td>
-                <td>
-                  <button
-                    className="btn btn-primary btn-sm me-2"
-                    onClick={() => handleReply(contact.email)}
-                  >
-                    Répondre
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDeleteContact(contact.id)}
-                  >
-                    Supprimer
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+      <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: '#f8f9fa' }}>
+        {/* Messages d'alerte */}
+        {error && (
+            <Alert variant="danger" onClose={() => setError(null)} dismissible>
+              <div className="fw-bold">Erreur</div>
+              <div>{error}</div>
+            </Alert>
+        )}
+
+        {successMessage && (
+            <Alert variant="success" onClose={() => setSuccessMessage('')} dismissible>
+              {successMessage}
+            </Alert>
+        )}
+
+        {/* Carte principale */}
+        <Card className="shadow-sm mb-4 border-0">
+          <Card.Body className="p-4">
+            {/* En-tête */}
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h4 className="fw-bold mb-0">Gestion des contacts</h4>
+                <p className="text-muted mb-0">
+                  {filteredContacts.length} contact(s) trouvé(s)
+                </p>
+              </div>
+              <Button
+                  variant="outline-primary"
+                  onClick={fetchContacts}
+                  disabled={loading}
+              >
+                <FiRefreshCw className="me-1" />
+                Actualiser
+              </Button>
+            </div>
+
+            {/* Barre de recherche */}
+            <div className="row mb-4">
+              <div className="col-md-6">
+                <Form.Group>
+                  <Form.Label>Rechercher</Form.Label>
+                  <Form.Control
+                      type="text"
+                      placeholder="Rechercher par nom, email ou message..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </Form.Group>
+              </div>
+            </div>
+
+            {/* Tableau des contacts */}
+            <div className="table-responsive">
+              <Table hover className="mb-0">
+                <thead className="table-light">
+                <tr>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {currentContacts.length > 0 ? (
+                    currentContacts.map((contact) => (
+                        <tr key={contact.id}>
+                          <td>{contact.fullName}</td>
+                          <td>{contact.email}</td>
+                          <td>
+                            <div className="text-truncate" style={{ maxWidth: '200px' }}>
+                              {contact.message.substring(0, 50)}
+                              {contact.message.length > 50 && '...'}
+                            </div>
+                          </td>
+                          <td>{formatDate(contact.createdAt)}</td>
+                          <td>
+                            <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="me-2"
+                                onClick={() => {
+                                  setSelectedContact(contact);
+                                  setShowModal(true);
+                                }}
+                            >
+                              Détails
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                className="me-2"
+                                onClick={() => handleReply(contact.email)}
+                            >
+                              <FiMail className="me-1" />
+                              Répondre
+                            </Button>
+                            <Button
+                                variant="danger"
+                                size="sm"
+                                onClick={() => handleDeleteContact(contact.id)}
+                            >
+                              <FiTrash2 className="me-1" />
+                              Supprimer
+                            </Button>
+                          </td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        Aucun contact trouvé
+                      </td>
+                    </tr>
+                )}
+                </tbody>
+              </Table>
+            </div>
+
+            {/* Pagination */}
+            {filteredContacts.length > contactsPerPage && (
+                <div className="d-flex justify-content-center mt-3">
+                  <Pagination>
+                    <Pagination.Prev
+                        onClick={() => paginate(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                    />
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <Pagination.Item
+                            key={index + 1}
+                            active={index + 1 === currentPage}
+                            onClick={() => paginate(index + 1)}
+                        >
+                          {index + 1}
+                        </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                        onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
+                </div>
+            )}
+          </Card.Body>
+        </Card>
+
+        {/* Modal de détails */}
+        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Détails du contact</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedContact && (
+                <div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <h6 className="text-muted">Nom complet</h6>
+                      <p>{selectedContact.fullName}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6 className="text-muted">Email</h6>
+                      <p>{selectedContact.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <h6 className="text-muted">Date</h6>
+                      <p>{formatDate(selectedContact.createdAt)}</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <h6 className="text-muted">Message complet</h6>
+                    <div className="p-3 bg-light rounded">
+                      {selectedContact.message}
+                    </div>
+                  </div>
+                </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Fermer
+            </Button>
+            <Button
+                variant="primary"
+                onClick={() => {
+                  handleReply(selectedContact?.email);
+                  setShowModal(false);
+                }}
+            >
+              <FiMail className="me-1" />
+              Répondre
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
   );
 };
 

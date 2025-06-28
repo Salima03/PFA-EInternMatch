@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Offresadmin from '../components/pagesADmin/Offresadmin';
+import SignalementsAdmin from '../components/pagesADmin/SignalementsAdmin';
 
-const AdminOffre = () => {  // Suppression de la prop handleLogout
+const AdminReports = () => {  // Suppression de la prop handleLogout
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -11,7 +11,7 @@ const AdminOffre = () => {  // Suppression de la prop handleLogout
         return location.pathname === path ? 'text-dark fw-bold' : 'text-secondary';
     };
 
-    // Fonction handleLogout définie directement dans le composant
+    // Ajout de la fonction handleLogout directement dans le composant
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
@@ -19,7 +19,7 @@ const AdminOffre = () => {  // Suppression de la prop handleLogout
 
     return (
         <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: '#f4f6f8' }}>
-            {/* Navbar */}
+            {/* Navbar commune à toutes les pages admin */}
             <Navbar bg="white" expand="lg" className="shadow-sm px-4 py-3">
                 <Container fluid>
                     <Navbar.Brand href="#" className="fw-bold text-teal">
@@ -73,7 +73,7 @@ const AdminOffre = () => {  // Suppression de la prop handleLogout
                         </Nav>
                         <Button
                             variant="light"
-                            onClick={handleLogout}
+                            onClick={handleLogout}  // Utilisation de la fonction locale
                             className="ms-2 border rounded-pill px-3 py-2 text-dark shadow-sm"
                         >
                             <i className="fas fa-sign-out-alt me-1"></i> Déconnexion
@@ -82,11 +82,11 @@ const AdminOffre = () => {  // Suppression de la prop handleLogout
                 </Container>
             </Navbar>
 
-            {/* Contenu principal */}
+            {/* Contenu principal - intégration du composant SignalementsAdmin */}
             <main className="flex-grow-1 p-4">
                 <Container fluid>
                     <div className="bg-white rounded-4 shadow-sm p-4">
-                        <Offresadmin />
+                        <SignalementsAdmin />
                     </div>
                 </Container>
             </main>
@@ -94,4 +94,4 @@ const AdminOffre = () => {  // Suppression de la prop handleLogout
     );
 };
 
-export default AdminOffre;
+export default AdminReports;

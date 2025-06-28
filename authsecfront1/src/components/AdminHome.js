@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AdminDashboard from './AdminDashboard';
 
-const AdminHome = ({ handleLogout }) => {
+const AdminHome = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
     const getLinkClass = (path) => {
         return location.pathname === path ? 'text-dark fw-bold' : 'text-secondary';
+    };
+
+    // Ajout de la fonction handleLogout directement dans le composant
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
     };
 
     return (
@@ -17,7 +23,7 @@ const AdminHome = ({ handleLogout }) => {
             <Navbar bg="white" expand="lg" className="shadow-sm px-4 py-3">
                 <Container fluid>
                     <Navbar.Brand href="#" className="fw-bold text-teal">
-                    E-InterMatch
+                        E-InterMatch
                     </Navbar.Brand>
                     <Navbar.Toggle />
                     <Navbar.Collapse>
@@ -46,18 +52,24 @@ const AdminHome = ({ handleLogout }) => {
                             >
                                 Offres
                             </Nav.Link>
-                             <Nav.Link
+                            <Nav.Link
                                 onClick={() => navigate('/admin/candidature')}
                                 className={getLinkClass('/admin/candidature')}
                             >
-                                Candidature
+                                Candidatures
                             </Nav.Link>
-                              <Nav.Link
-                                                            onClick={() => navigate('/admin/messages')}
-                                                            className={getLinkClass('/admin/messages')}
-                                                        >
-                                                            Messages
-                                                        </Nav.Link>
+                            <Nav.Link
+                                onClick={() => navigate('/admin/messages')}
+                                className={getLinkClass('/admin/messages')}
+                            >
+                                Messages
+                            </Nav.Link>
+                            <Nav.Link
+                                onClick={() => navigate('/admin/reports')}
+                                className={getLinkClass('/admin/reports')}
+                            >
+                                Signalements
+                            </Nav.Link>
                         </Nav>
                         <Button
                             variant="light"

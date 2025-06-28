@@ -33,7 +33,7 @@ import AdminHome from './components/AdminHome';
 import About from './components/About';
 import LandingPage from './components/LandingPage';
 import AdminContact from './components/AdminContact';
-
+import AdminReports from "./components/AdminReports";
 import SettingsPage from './components/SettingsPage';
 function App() {
   useEffect(() => {
@@ -117,7 +117,7 @@ function App() {
              <Route path="/about" element={<About />} />
               <Route path="/admin/messages" element={<AdminContact />} />
              <Route path="/" element={<LandingPage />} />
-               
+          <Route path="/admin/reports" element={<AdminReports handleLogout={handleLogout} />} />
              
         </Routes>
       </BrowserRouter>
