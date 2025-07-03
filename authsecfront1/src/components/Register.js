@@ -62,7 +62,7 @@ const Register = () => {
                 <div style={styles.inputGroup}>
                   <input
                       type="text"
-                      placeholder="Nom de famille"
+                      placeholder="Nom "
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       style={styles.input}

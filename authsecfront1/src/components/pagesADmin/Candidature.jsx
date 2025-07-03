@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   PieChart, Pie, BarChart, Bar, LineChart, Line,
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchDashboardStats = async () => {
     try {
@@ -66,7 +68,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchDashboardStats();
-  }, []);
+    if (error) {
+   
+   
+      navigate('/login');
+  
+  }
+}, [error, navigate]);
 
   const formatDateData = (dateMap) => {
     if (!dateMap || typeof dateMap !== 'object') return [];
@@ -94,7 +102,7 @@ const AdminDashboard = () => {
       </div>
     );
   }
-
+/*
   if (error) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-80 flex-column p-3">
@@ -110,7 +118,7 @@ const AdminDashboard = () => {
         </button>
       </div>
     );
-  }
+  }*/
 
   if (!stats) {
     return (

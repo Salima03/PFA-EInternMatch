@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   PieChart, Pie, BarChart, Bar, LineChart, Line,
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchDashboardStats = async () => {
     try {
@@ -61,7 +63,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchDashboardStats();
-  }, []);
+    if (error) {
+   
+   
+      navigate('/login');
+  
+  }
+}, [error, navigate]);
 
   // Fonction pour formater les données de date
   const formatDateData = (dateMap) => {

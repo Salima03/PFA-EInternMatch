@@ -117,10 +117,10 @@ const Sidebar = () => {
       icon: <FaHome />
     },
     
-    {
+   {
+      path: role === 'MANAGER' ? '/company-profile' : '/profile/view',
       label: 'Profile',
-      icon: <FaUser />,
-      onClick: handleProfileClick
+      icon: <FaUser />
     },
 
     ...(role === 'STUDENT' ? [{ path: '/my-applications', label: 'Candidature', icon: <FaFileAlt /> }] : []),

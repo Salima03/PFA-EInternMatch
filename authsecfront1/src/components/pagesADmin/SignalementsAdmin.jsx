@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 import {
     Badge, Button, Card, Table,
@@ -28,6 +30,7 @@ const SignalementsAdmin = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const reportsPerPage = 10;
+    const navigate = useNavigate();
 
     const token = localStorage.getItem('accessToken');
 
@@ -128,7 +131,13 @@ const SignalementsAdmin = () => {
     // Effets
     useEffect(() => {
         fetchReports();
-    }, []);
+            if (error) {
+   
+   
+      navigate('/login');
+  
+  }
+}, [error, navigate]);
 
     useEffect(() => {
         let result = [...reports];

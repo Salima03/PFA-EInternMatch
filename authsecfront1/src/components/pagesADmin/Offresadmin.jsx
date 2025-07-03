@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -30,6 +31,7 @@ const Offresadmin = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
@@ -76,8 +78,13 @@ const Offresadmin = () => {
       }
     };
 
-    fetchDashboardStats();
-  }, []);
+    fetchDashboardStats();if (error) {
+   
+   
+      navigate('/login');
+  
+  }
+}, [error, navigate]);
 
   useEffect(() => {
     let result = [...offers];
