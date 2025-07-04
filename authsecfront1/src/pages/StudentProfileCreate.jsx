@@ -100,7 +100,7 @@ const StudentProfileCreate = () => {
               <div className="cover-photo-placeholder" />
             )}
             <label className="edit-cover-button">
-              Edit cover
+              Modifier cover
               <input
                 type="file"
                 name="coverPhoto"
@@ -121,7 +121,7 @@ const StudentProfileCreate = () => {
               )}
             </div>
             <label className="edit-profile-button">
-              Edit profile
+              modifier profile
               <input
                 type="file"
                 name="profilePicture"

@@ -237,21 +237,21 @@ if (storedEmail) {
           <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "80px" ,marginLeft:"30px" }}>
  
   <ReadOnlyField label="Email" value={email} />
-  <ReadOnlyField label="Phone Number" value={profile.phone} />
-  <ReadOnlyField label="Location" value={profile.location} />
+  <ReadOnlyField label="Téléphone" value={profile.phone} />
+  <ReadOnlyField label="Lieu" value={profile.location} />
 </div>
 
   
           
           <div style={{ padding: "20px 40px" }}>
-            <h3>About me</h3>
+            <h3>A propos</h3>
             <p style={{ marginTop: "10px", color: "#555" }}>{profile.summary}</p>
           </div>
         
 
           
               <div style={{ padding: "20px 40px" }}>
-                <h3>Experiences</h3>
+                <h3>Expériences</h3>
                 {profile.experiences?.map((exp, index) => (
                   <div
                     key={index}
@@ -321,7 +321,7 @@ if (storedEmail) {
   
           
           <div style={{ padding: "20px 40px" }}>
-            <h3>Skills</h3>
+            <h3>Compétences</h3>
             <ul style={{ marginTop: "10px", paddingLeft: "20px" }}>
               {profile.skills?.map((skill, index) => (
                 <li key={index} style={{ marginBottom: "5px", color: "#555" }}>{skill.name}</li>
@@ -331,7 +331,7 @@ if (storedEmail) {
   
           
           <div style={{ padding: "20px 40px" }}>
-            <h3>Certifications</h3>
+            <h3>Certificats</h3>
             {profile.certifications?.map((cert, index) => (
               <div key={index} style={{
                 backgroundColor: "#fafafa",
@@ -344,7 +344,7 @@ if (storedEmail) {
                 <p>{cert.issuedBy}</p>
                 {cert.url && (
                   <a href={cert.url} target="_blank" rel="noopener noreferrer" style={{ color: "#5c9ead" }}>
-                    Voir certification
+                    Voir certificat
                   </a>
                 )}
               </div>
@@ -354,7 +354,7 @@ if (storedEmail) {
           
 
 <div style={{ padding: "20px 40px" }}>
-  <h3>Files</h3>
+  <h3>Documents</h3>
   <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", marginTop: "15px" }}>
     {cvUrl && (
       <div style={{
@@ -441,7 +441,7 @@ if (storedEmail) {
                 e.target.style.color = "white";
               }}
             >
-              Edit
+              Modifier
             </button>
 
 

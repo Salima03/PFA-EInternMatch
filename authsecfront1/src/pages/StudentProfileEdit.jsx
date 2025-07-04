@@ -379,7 +379,7 @@ const validateDate = (dateString) => {
   
           {error && <p className="error-message">{error}</p>}
   
-          <label>Title
+          <label>Titre
           <input
     type="text"
     name="headline"
@@ -593,7 +593,7 @@ const validateDate = (dateString) => {
                       transition: "all 0.3s ease"
                     }}
                   >
-                    {profileExists ? 'Update profil' : 'Create profil'}
+                    {profileExists ? 'Modifier profil' : 'Creer profil'}
                   </button>
 
                   {profileExists && (
@@ -621,7 +621,7 @@ const validateDate = (dateString) => {
                         transition: "all 0.3s ease"
                       }}
                     >
-                      Delete Profil
+                      Supprimer Profil
                     </button>
                   )}
                 </div>
